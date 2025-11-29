@@ -1,6 +1,5 @@
 import React from 'react';
 import { AppProvider } from './contexts/AppContext';
-import { CustomCursor } from './components/ui/AdvancedComponents';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -10,7 +9,7 @@ function App() {
   return (
     <AppProvider>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-500">
-        <CustomCursor />
+        {/* CustomCursor removed as requested */}
         <Header />
         <Home />
         <Footer />
