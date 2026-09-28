@@ -1,17 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../../contexts/AppContext';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 import { useIntersectionObserver } from '../../hooks';
-import { profile } from '../../data/portfolioData';
 import { ArrowDown, Download, ChevronRight } from 'lucide-react';
-
-const ROLES = [
-  'Full-Stack Software Engineer',
-  'API-First System Designer',
-  'Flutter Mobile Developer',
-  'ARM Embedded Engineer',
-  'Clean Architecture Advocate',
-];
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -21,20 +13,33 @@ const fadeUp = (delay = 0) => ({
 
 const HeroSection: React.FC = () => {
   const { setActiveSection } = useApp();
+  const { profile } = usePortfolio();
   const { ref, isIntersecting } = useIntersectionObserver();
   const [roleIdx, setRoleIdx] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [charIdx, setCharIdx] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const roles = useMemo(
+    () => (profile.roles && profile.roles.length > 0 ? profile.roles : ['Full-Stack Software Engineer']),
+    [profile.roles]
+  );
+
   useEffect(() => {
     if (isIntersecting) setActiveSection('hero');
   }, [isIntersecting, setActiveSection]);
 
+  // Reset role index if roles change
+  useEffect(() => {
+    setRoleIdx(0);
+    setCharIdx(0);
+    setIsDeleting(false);
+  }, [roles.length]);
+
   // Typewriter effect
   useEffect(() => {
-    const current = ROLES[roleIdx];
-    const delay = isDeleting ? 40 : 65;
+    const current = roles[roleIdx % roles.length];
+    const delay = isDeleting ? 35 : 60;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayText(current.slice(0, charIdx + 1));
@@ -45,9 +50,9 @@ const HeroSection: React.FC = () => {
         }
       } else {
         setDisplayText(current.slice(0, charIdx - 1));
-        if (charIdx - 1 === 0) {
+        if (charIdx - 1 <= 0) {
           setIsDeleting(false);
-          setRoleIdx((i) => (i + 1) % ROLES.length);
+          setRoleIdx((i) => (i + 1) % roles.length);
           setCharIdx(0);
         } else {
           setCharIdx((c) => c - 1);
@@ -55,7 +60,7 @@ const HeroSection: React.FC = () => {
       }
     }, delay);
     return () => clearTimeout(timeout);
-  }, [charIdx, isDeleting, roleIdx]);
+  }, [charIdx, isDeleting, roleIdx, roles]);
 
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
@@ -65,34 +70,28 @@ const HeroSection: React.FC = () => {
     <section
       id="hero"
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-app"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent"
     >
-      {/* Grid overlay */}
-      <div className="grid-overlay opacity-60" />
-
-      {/* Ambient orbs */}
-      <div className="absolute -top-64 -left-64 w-[640px] h-[640px] rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-64 -right-64 w-[640px] h-[640px] rounded-full bg-violet-600/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-500/3 blur-3xl pointer-events-none" />
-
       <div className="container mx-auto px-6 relative z-10 pt-24 pb-16">
         <div className="max-w-4xl mx-auto">
           {/* Status badge */}
-          <motion.div {...fadeUp(0)} className="mb-8">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-badge border border-brand-primary/30 bg-brand-primary/10 text-sm">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-emerald" />
-              </span>
-              <span className="text-brand-emerald font-medium">{profile.status}</span>
-            </div>
-          </motion.div>
+          {profile.statusActive && (
+            <motion.div {...fadeUp(0)} className="mb-8">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-badge border border-brand-primary/30 bg-brand-primary/10 text-sm">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-emerald" />
+                </span>
+                <span className="text-brand-emerald font-medium">{profile.status}</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* Main heading */}
           <motion.h1 {...fadeUp(0.1)} className="font-display font-bold tracking-tight leading-tight mb-6">
             <span className="block text-5xl md:text-7xl text-content-primary mb-2">
               Hi, I'm{' '}
-              <span className="text-gradient-brand animate-gradient-text">Kibrom Abebe.</span>
+              <span className="text-gradient-brand animate-gradient-text">{profile.name}.</span>
             </span>
             <span className="block text-2xl md:text-3xl text-content-secondary font-normal mt-4">
               <span className="text-brand-accent font-mono">{displayText}</span>
@@ -110,12 +109,7 @@ const HeroSection: React.FC = () => {
 
           {/* Stats row */}
           <motion.div {...fadeUp(0.3)} className="flex flex-wrap gap-8 mb-10">
-            {[
-              { value: '4+', label: 'Years Building' },
-              { value: '10+', label: 'Projects Shipped' },
-              { value: '5+', label: 'Tech Domains' },
-              { value: '99.97%', label: 'API Uptime (Best)' },
-            ].map((stat) => (
+            {profile.stats.map((stat) => (
               <div key={stat.label} className="flex flex-col">
                 <span className="text-3xl font-display font-bold text-content-primary">{stat.value}</span>
                 <span className="text-xs text-content-muted mt-0.5 font-mono">{stat.label}</span>

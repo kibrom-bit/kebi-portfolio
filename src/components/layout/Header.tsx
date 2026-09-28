@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 import { useScrollPosition } from '../../hooks';
 import { CommandPalette } from '../ui/CommandPalette';
-import { profile } from '../../data/portfolioData';
-import { Moon, Sun, Download, Search } from 'lucide-react';
+import { Moon, Sun, Download, Search, Sliders } from 'lucide-react';
 
 const navItems = [
   { id: 'hero', label: 'Home' },
@@ -16,6 +16,7 @@ const navItems = [
 
 const Header: React.FC = () => {
   const { theme, toggleTheme, activeSection, setActiveSection, isMenuOpen, toggleMenu } = useApp();
+  const { profile, openCustomizer } = usePortfolio();
   const scrollPosition = useScrollPosition();
   const [isScrolled, setIsScrolled] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -62,10 +63,13 @@ const Header: React.FC = () => {
               className="flex items-center gap-2.5 group"
             >
               <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center shadow-glow-blue">
-                <span className="text-white font-display font-bold text-sm">K</span>
+                <span className="text-white font-display font-bold text-sm">
+                  {profile.name.charAt(0) || 'K'}
+                </span>
               </div>
               <span className="font-display font-semibold text-content-primary">
-                Kibrom<span className="text-brand-primary">.dev</span>
+                {profile.name.split(' ')[0] || 'Kibrom'}
+                <span className="text-brand-primary">.dev</span>
               </span>
             </button>
 
@@ -91,6 +95,18 @@ const Header: React.FC = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              {/* Studio Customize button */}
+              <button
+                onClick={openCustomizer}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
+                           text-brand-primary bg-brand-primary/10 border border-brand-primary/30
+                           hover:bg-brand-primary/20 active:scale-95 transition-all duration-200"
+                title="Customize Background, Projects & Profile directly"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Customize</span>
+              </button>
+
               {/* Cmd+K trigger */}
               <button
                 onClick={() => setCmdOpen(true)}
@@ -159,13 +175,24 @@ const Header: React.FC = () => {
                   {item.label}
                 </button>
               ))}
-              <div className="px-3 pt-2 pb-1 border-t border-border-subtle mt-1 flex gap-2">
+              <div className="px-3 pt-2 pb-1 border-t border-border-subtle mt-1 flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    openCustomizer();
+                    if (isMenuOpen) toggleMenu();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-brand-primary/15 text-brand-primary border border-brand-primary/30"
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  Customize Site (Studio)
+                </button>
                 <a
                   href={profile.resume}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 btn-primary text-center text-xs py-2.5"
+                  className="w-full btn-ghost text-center text-xs py-2.5 flex items-center justify-center gap-1.5"
                 >
+                  <Download className="w-3.5 h-3.5" />
                   Download Resume
                 </a>
               </div>

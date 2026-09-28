@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
-import { projects } from '../../data/portfolioData';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 import { SpotlightCard } from '../ui/SpotlightCard';
-import { FolderGit2, ExternalLink, ChevronRight, X, TrendingUp, Cpu, Layers, BarChart3 } from 'lucide-react';
+import { FolderGit2, ExternalLink, ChevronRight, X, TrendingUp, Cpu, Layers, BarChart3, Plus } from 'lucide-react';
 
 const accentMap: Record<string, { glow: string; text: string; bg: string; border: string }> = {
   blue:    { glow: 'rgba(59,130,246,0.12)',   text: 'text-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/30' },
@@ -13,12 +14,11 @@ const accentMap: Record<string, { glow: string; text: string; bg: string; border
   amber:   { glow: 'rgba(245,158,11,0.12)',   text: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/30' },
 };
 
-type Project = (typeof projects)[0];
-
 const FeaturedProjects: React.FC = () => {
   const { setActiveSection } = useApp();
+  const { projects, profile, openCustomizer } = usePortfolio();
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [selected, setSelected] = useState<Project | null>(null);
+  const [selected, setSelected] = useState<(typeof projects)[0] | null>(null);
 
   useEffect(() => {
     if (isIntersecting) setActiveSection('projects');
@@ -30,10 +30,10 @@ const FeaturedProjects: React.FC = () => {
   }, [selected]);
 
   const featured = projects.filter((p) => p.featured);
+  const displayFeatured = featured.length > 0 ? featured : projects;
 
   return (
-    <section id="projects" ref={ref} className="section-wrapper bg-app">
-      <div className="grid-overlay opacity-30" />
+    <section id="projects" ref={ref} className="section-wrapper bg-transparent">
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <motion.div
@@ -46,7 +46,7 @@ const FeaturedProjects: React.FC = () => {
           <div className="section-header mb-0">
             <p className="section-tag">
               <span className="w-4 h-px bg-brand-primary" />
-              Featured Work
+              Featured Work ({projects.length})
             </p>
             <h2 className="section-title">
               Engineering{' '}
@@ -56,20 +56,29 @@ const FeaturedProjects: React.FC = () => {
               Deep-dive breakdowns with architecture diagrams, impact metrics, and trade-off documentation.
             </p>
           </div>
-          <a
-            href="https://github.com/kibrom-bit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost shrink-0 text-sm"
-          >
-            <FolderGit2 className="w-4 h-4" />
-            View All on GitHub
-          </a>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={openCustomizer}
+              className="btn-primary text-xs py-2.5 px-4 flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add / Manage Projects
+            </button>
+            <a
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost text-sm py-2.5"
+            >
+              <FolderGit2 className="w-4 h-4" />
+              GitHub
+            </a>
+          </div>
         </motion.div>
 
         {/* Bento Grid */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {featured.map((project, idx) => {
+          {displayFeatured.map((project, idx) => {
             const colors = accentMap[project.accentColor] ?? accentMap.blue;
             return (
               <motion.div
@@ -192,25 +201,27 @@ const FeaturedProjects: React.FC = () => {
       </div>
 
       {/* ── Case Study Modal ── */}
-      <AnimatePresence>
-        {selected && (
-          <div className="fixed inset-0 z-[998] flex items-center justify-center p-4">
-            <motion.div
-              key="modal-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelected(null)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
-            />
-            <motion.div
-              key="modal-panel"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-subtle bg-surface shadow-2xl"
-            >
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {selected && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 pt-20 sm:pt-24 overflow-y-auto">
+                <motion.div
+                  key="modal-backdrop"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSelected(null)}
+                  className="fixed inset-0 bg-black/80 backdrop-blur-md"
+                />
+                <motion.div
+                  key="modal-panel"
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative w-full max-w-3xl my-auto max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border border-border-subtle bg-surface shadow-2xl"
+                >
               {(() => {
                 const colors = accentMap[selected.accentColor] ?? accentMap.blue;
                 return (
@@ -317,7 +328,9 @@ const FeaturedProjects: React.FC = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+          document.body
+        )}
     </section>
   );
 };

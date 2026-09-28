@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
-import { profile } from '../../data/portfolioData';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 import { SpotlightCard } from '../ui/SpotlightCard';
 import { Mail, FolderGit2, Link2, Send, Check, MapPin, Clock, MessageSquare } from 'lucide-react';
 
 const ContactSection: React.FC = () => {
   const { setActiveSection } = useApp();
+  const { profile } = usePortfolio();
   const { ref, isIntersecting } = useIntersectionObserver();
   const [formData, setFormData] = useState({ name: '', email: '', type: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -42,13 +43,13 @@ const ContactSection: React.FC = () => {
 
   const directContacts = [
     { icon: <Mail className="w-4 h-4" />, label: 'Email', value: profile.email, href: `mailto:${profile.email}`, color: 'text-blue-400' },
-    { icon: <FolderGit2 className="w-4 h-4" />, label: 'GitHub', value: '@kibrom-bit', href: profile.github, color: 'text-content-secondary' },
-    { icon: <Link2 className="w-4 h-4" />, label: 'LinkedIn', value: 'Kibrom Abebe', href: profile.linkedin, color: 'text-blue-500' },
-    { icon: <MessageSquare className="w-4 h-4" />, label: 'Telegram', value: '@mylordjesus3', href: profile.telegram, color: 'text-sky-400' },
+    { icon: <FolderGit2 className="w-4 h-4" />, label: 'GitHub', value: profile.github.replace('https://github.com/', '@'), href: profile.github, color: 'text-content-secondary' },
+    { icon: <Link2 className="w-4 h-4" />, label: 'LinkedIn', value: profile.name, href: profile.linkedin, color: 'text-blue-500' },
+    { icon: <MessageSquare className="w-4 h-4" />, label: 'Telegram', value: profile.telegram.replace('https://t.me/', '@'), href: profile.telegram, color: 'text-sky-400' },
   ];
 
   return (
-    <section id="contact" ref={ref} className="section-wrapper bg-app">
+    <section id="contact" ref={ref} className="section-wrapper bg-transparent">
       <div className="grid-overlay opacity-30" />
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}

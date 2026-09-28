@@ -4,9 +4,9 @@ import { Command } from 'cmdk';
 import {
   Search, FileText, Layers, FolderGit2, Briefcase, Send,
   Link2, Copy, Check, ExternalLink, Terminal,
-  X, Hash,
+  X, Hash, Sliders,
 } from 'lucide-react';
-import { profile } from '../../data/portfolioData';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -14,6 +14,7 @@ interface CommandPaletteProps {
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChange }) => {
+  const { profile, openCustomizer } = usePortfolio();
   const [copied, setCopied] = useState(false);
 
   const navigateTo = useCallback((hash: string) => {
@@ -31,12 +32,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
       setCopied(false);
       onOpenChange(false);
     }, 1400);
-  }, [onOpenChange]);
+  }, [onOpenChange, profile.email]);
 
   const downloadResume = useCallback(() => {
     onOpenChange(false);
     window.open(profile.resume, '_blank');
-  }, [onOpenChange]);
+  }, [onOpenChange, profile.resume]);
+
+  const handleOpenStudio = useCallback(() => {
+    onOpenChange(false);
+    setTimeout(() => openCustomizer(), 100);
+  }, [onOpenChange, openCustomizer]);
 
   const openLink = useCallback((url: string) => {
     onOpenChange(false);
@@ -98,7 +104,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
                     { label: 'Engineering Philosophy', hash: '#philosophy', icon: <Layers className="w-4 h-4 text-violet-400" /> },
                     { label: 'Skills Matrix', hash: '#skills', icon: <Terminal className="w-4 h-4 text-emerald-400" /> },
                     { label: 'Featured Case Studies', hash: '#projects', icon: <FolderGit2 className="w-4 h-4 text-blue-400" /> },
-                    { label: 'Live API & Architecture Explorer', hash: '#proof-of-work', icon: <Terminal className="w-4 h-4 text-amber-400" /> },
                     { label: 'Experience Timeline', hash: '#experience', icon: <Briefcase className="w-4 h-4 text-sky-400" /> },
                     { label: 'Contact', hash: '#contact', icon: <Send className="w-4 h-4 text-rose-400" /> },
                   ].map((item) => (
@@ -115,6 +120,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
 
                 {/* Actions */}
                 <Command.Group heading="Actions">
+                  <Command.Item value="customize website studio settings" onSelect={handleOpenStudio}>
+                    <Sliders className="w-4 h-4 text-brand-primary" />
+                    <span>Customize Site (Theme, Background, Projects)</span>
+                    <span className="ml-auto text-[11px] text-brand-primary font-mono font-semibold">Studio</span>
+                  </Command.Item>
                   <Command.Item value="download resume" onSelect={downloadResume}>
                     <FileText className="w-4 h-4 text-brand-primary" />
                     <span>Download Resume (PDF)</span>
