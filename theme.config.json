@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "name": "Linear High-Contrast Dark / Kebi Portfolio",
+  "version": "1.0.0",
+  "tokens": {
+    "colors": {
+      "dark": {
+        "background": "#08090a",
+        "surface": "#111316",
+        "surfaceHover": "#181b20",
+        "surfaceSubtle": "#1d2127",
+        "border": "#23272f",
+        "borderGlow": "#3b82f6",
+        "primary": "#3b82f6",
+        "accent": "#60a5fa",
+        "accentViolet": "#8b5cf6",
+        "accentEmerald": "#10b981",
+        "accentAmber": "#f59e0b",
+        "textPrimary": "#f3f4f6",
+        "textSecondary": "#9ca3af",
+        "textMuted": "#4b5563"
+      },
+      "light": {
+        "background": "#ffffff",
+        "surface": "#f9fafb",
+        "surfaceHover": "#f3f4f6",
+        "surfaceSubtle": "#e5e7eb",
+        "border": "#e5e7eb",
+        "borderGlow": "#2563eb",
+        "primary": "#2563eb",
+        "accent": "#3b82f6",
+        "accentViolet": "#7c3aed",
+        "accentEmerald": "#059669",
+        "accentAmber": "#d97706",
+        "textPrimary": "#111827",
+        "textSecondary": "#4b5563",
+        "textMuted": "#9ca3af"
+      }
+    },
+    "glow": {
+      "spotlightColor": "rgba(59, 130, 246, 0.13)",
+      "spotlightRadius": "360px",
+      "borderGlowOpacity": 0.35
+    },
+    "typography": {
+      "fontSans": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "fontMono": "'JetBrains Mono', 'Fira Code', monospace",
+      "fontDisplay": "'Outfit', 'Inter', sans-serif"
+    },
+    "radii": {
+      "card": "16px",
+      "badge": "9999px",
+      "button": "10px"
+    }
+  }
+}

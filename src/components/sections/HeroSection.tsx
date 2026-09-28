@@ -1,204 +1,165 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useApp } from '../../contexts/AppContext';
 import { useIntersectionObserver } from '../../hooks';
-import { GradientText, AnimatedCard, TypewriterText, ShimmerButton } from '../ui/AdvancedComponents';
+import { profile } from '../../data/portfolioData';
+import { ArrowDown, Download, ChevronRight } from 'lucide-react';
 
-// Import the image
-import profileImage from './kebi.jpg';
+const ROLES = [
+  'Full-Stack Software Engineer',
+  'API-First System Designer',
+  'Flutter Mobile Developer',
+  'ARM Embedded Engineer',
+  'Clean Architecture Advocate',
+];
 
-export const HeroSection: React.FC = () => {
-  const { setActiveSection, setCursorVariant } = useApp();
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay },
+});
+
+const HeroSection: React.FC = () => {
+  const { setActiveSection } = useApp();
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+  const [roleIdx, setRoleIdx] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [charIdx, setCharIdx] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const roles = [
-    'Senior Full Stack Engineer',
-    'UI/UX Architect',
-    'React Specialist',
-    'TypeScript Expert',
-    'System Designer'
-  ];
-
-  // Auto-rotate roles
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [roles.length]);
+    if (isIntersecting) setActiveSection('hero');
+  }, [isIntersecting, setActiveSection]);
 
-  // Set home as default active section
+  // Typewriter effect
   useEffect(() => {
-    setActiveSection('home');
-  }, [setActiveSection]);
+    const current = ROLES[roleIdx];
+    const delay = isDeleting ? 40 : 65;
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setDisplayText(current.slice(0, charIdx + 1));
+        if (charIdx + 1 === current.length) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        } else {
+          setCharIdx((c) => c + 1);
+        }
+      } else {
+        setDisplayText(current.slice(0, charIdx - 1));
+        if (charIdx - 1 === 0) {
+          setIsDeleting(false);
+          setRoleIdx((i) => (i + 1) % ROLES.length);
+          setCharIdx(0);
+        } else {
+          setCharIdx((c) => c - 1);
+        }
+      }
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [charIdx, isDeleting, roleIdx]);
+
+  const scrollToProjects = () => {
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <section 
-      id="home" 
+    <section
+      id="hero"
       ref={ref}
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/5"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-app"
     >
-      {/* Clean geometric background */}
-      <div className="absolute inset-0">
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
-        
-        {/* Gradient orbs */}
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/3 rounded-full blur-3xl"></div>
-      </div>
+      {/* Grid overlay */}
+      <div className="grid-overlay opacity-60" />
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center min-h-screen py-20">
-          
-          {/* Left Column - Content */}
-          <div className={`transform transition-all duration-1000 space-y-8 ${
-            isIntersecting ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
-            
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-medium">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              Available for new projects
+      {/* Ambient orbs */}
+      <div className="absolute -top-64 -left-64 w-[640px] h-[640px] rounded-full bg-blue-600/5 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-64 -right-64 w-[640px] h-[640px] rounded-full bg-violet-600/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-500/3 blur-3xl pointer-events-none" />
+
+      <div className="container mx-auto px-6 relative z-10 pt-24 pb-16">
+        <div className="max-w-4xl mx-auto">
+          {/* Status badge */}
+          <motion.div {...fadeUp(0)} className="mb-8">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-badge border border-brand-primary/30 bg-brand-primary/10 text-sm">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-emerald" />
+              </span>
+              <span className="text-brand-emerald font-medium">{profile.status}</span>
             </div>
+          </motion.div>
 
-            {/* Main Heading */}
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-                <span className="text-gray-900 dark:text-white block">Hi, I'm</span>
-                <GradientText className="block bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600">
-                  Kibrom Abebe
-                </GradientText>
-              </h1>
-              
-              <div className="h-20 flex items-start">
-                <div className="text-xl md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-light">
-                  <TypewriterText 
-                    key={currentRoleIndex}
-                    text={roles[currentRoleIndex]} 
-                    speed={50}
-                    className="bg-gradient-to-r from-gray-600 to-gray-800 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent font-semibold"
-                  />
-                </div>
+          {/* Main heading */}
+          <motion.h1 {...fadeUp(0.1)} className="font-display font-bold tracking-tight leading-tight mb-6">
+            <span className="block text-5xl md:text-7xl text-content-primary mb-2">
+              Hi, I'm{' '}
+              <span className="text-gradient-brand animate-gradient-text">Kibrom Abebe.</span>
+            </span>
+            <span className="block text-2xl md:text-3xl text-content-secondary font-normal mt-4">
+              <span className="text-brand-accent font-mono">{displayText}</span>
+              <span className="inline-block w-0.5 h-7 bg-brand-accent ml-1 animate-blink-caret" />
+            </span>
+          </motion.h1>
+
+          {/* Tagline */}
+          <motion.p
+            {...fadeUp(0.2)}
+            className="text-lg md:text-xl text-content-secondary leading-relaxed max-w-2xl mb-10"
+          >
+            {profile.tagline}
+          </motion.p>
+
+          {/* Stats row */}
+          <motion.div {...fadeUp(0.3)} className="flex flex-wrap gap-8 mb-10">
+            {[
+              { value: '4+', label: 'Years Building' },
+              { value: '10+', label: 'Projects Shipped' },
+              { value: '5+', label: 'Tech Domains' },
+              { value: '99.97%', label: 'API Uptime (Best)' },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col">
+                <span className="text-3xl font-display font-bold text-content-primary">{stat.value}</span>
+                <span className="text-xs text-content-muted mt-0.5 font-mono">{stat.label}</span>
               </div>
-            </div>
+            ))}
+          </motion.div>
 
-            {/* Description */}
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-              I architect and build scalable digital solutions using cutting-edge technologies. 
-              Specializing in <span className="text-blue-600 dark:text-blue-400 font-semibold">React</span>, 
-              <span className="text-purple-600 dark:text-purple-400 font-semibold"> Node.js</span>, and 
-              <span className="text-cyan-600 dark:text-cyan-400 font-semibold"> Cloud Platforms</span>.
-            </p>
+          {/* CTAs */}
+          <motion.div {...fadeUp(0.4)} className="flex flex-wrap gap-4">
+            <button
+              onClick={scrollToProjects}
+              className="btn-primary group"
+            >
+              Explore Case Studies
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <a
+              href={profile.resume}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+            >
+              <Download className="w-4 h-4" />
+              Download Resume
+            </a>
+          </motion.div>
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-3 gap-6 py-6">
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">5+</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">50+</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Projects</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">99%</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Client Satisfaction</div>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <ShimmerButton 
-                onClick={() => {
-                  const projectsSection = document.getElementById('projects');
-                  projectsSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                onMouseEnter={() => setCursorVariant('hover')}
-                onMouseLeave={() => setCursorVariant('default')}
-                className="flex-1 text-center justify-center"
-              >
-                View My Work
-              </ShimmerButton>
-              
-              <button 
-                onClick={() => {
-                  const contactSection = document.getElementById('contact');
-                  contactSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                onMouseEnter={() => setCursorVariant('hover')}
-                onMouseLeave={() => setCursorVariant('default')}
-                className="flex-1 px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-all duration-300 hover:border-blue-500 hover:scale-105 hover:shadow-lg backdrop-blur-sm bg-white/50 dark:bg-gray-800/50"
-              >
-                Get In Touch
-              </button>
-            </div>
-
-            {/* Tech Stack */}
-            <div className="pt-8">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">TECH STACK</p>
-              <div className="flex flex-wrap gap-3">
-                {['React', 'TypeScript', 'Node.js', 'Tailwind', 'AWS', 'PostgreSQL'].map((tech) => (
-                  <span 
-                    key={tech}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Profile Image */}
-          <div className={`transform transition-all duration-1000 delay-300 relative ${
-            isIntersecting ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
-            <div className="relative">
-              {/* Main Image Container - Fixed position, no rotation */}
-              <div className="relative mx-auto w-80 h-80 md:w-96 md:h-96">
-                {/* Background glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl"></div>
-                
-                {/* Image with modern frame */}
-                <div className="relative w-full h-full bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border-8 border-white dark:border-gray-800 shadow-2xl">
-                  <img 
-                    src={profileImage} 
-                    alt="Kibrom Abebe - Senior Full Stack Developer"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                {/* Floating elements */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 shadow-lg animate-bounce"></div>
-                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-500 rounded-full border-4 border-white dark:border-gray-800 shadow-lg animate-bounce animation-delay-1000"></div>
-              </div>
-
-              {/* Experience badge */}
-              <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-2xl shadow-2xl">
-                <div className="text-sm font-semibold">5+ Years</div>
-                <div className="text-xs opacity-90">Experience</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div 
-          className="w-6 h-10 border-2 border-gray-400/30 rounded-full flex justify-center cursor-pointer backdrop-blur-sm bg-white/30 dark:bg-gray-800/30"
-          onClick={() => {
-            const aboutSection = document.getElementById('about');
-            aboutSection?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onMouseEnter={() => setCursorVariant('hover')}
-          onMouseLeave={() => setCursorVariant('default')}
-        >
-          <div className="w-1 h-3 bg-gray-500 rounded-full mt-2 animate-pulse"></div>
+          {/* Scroll indicator */}
+          <motion.div
+            {...fadeUp(0.6)}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-content-muted"
+          >
+            <span className="text-xs font-mono">scroll</span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+            >
+              <ArrowDown className="w-4 h-4" />
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
+
+export default HeroSection;

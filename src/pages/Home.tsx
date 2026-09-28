@@ -1,20 +1,5 @@
+// Home.tsx is no longer the entry point — App.tsx now mounts all sections directly.
+// This file is kept as a stub for compatibility.
 import React from 'react';
-import { HeroSection } from '../components/sections/HeroSection';
-import { AboutSection } from '../components/sections/AboutSection';
-import { ProjectsSection } from '../components/sections/ProjectsSection';
-import { ContactSection } from '../components/sections/ContactSection';
-import { ParticleBackground } from '../components/ui/AdvancedComponents';
-
-const Home: React.FC = () => {
-  return (
-    <main className="relative">
-      <ParticleBackground />
-      <HeroSection />
-      <AboutSection />
-      <ProjectsSection />
-      <ContactSection />
-    </main>
-  );
-};
-
+const Home: React.FC = () => null;
 export default Home;

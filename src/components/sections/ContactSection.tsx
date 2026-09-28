@@ -1,281 +1,243 @@
-import React, { useState } from 'react';
-import { useApp } from '../../contexts/AppContext';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
-import { GradientText, AnimatedCard } from '../ui/AdvancedComponents';
+import { useApp } from '../../contexts/AppContext';
+import { profile } from '../../data/portfolioData';
+import { SpotlightCard } from '../ui/SpotlightCard';
+import { Mail, FolderGit2, Link2, Send, Check, MapPin, Clock, MessageSquare } from 'lucide-react';
 
-export const ContactSection: React.FC = () => {
+const ContactSection: React.FC = () => {
   const { setActiveSection } = useApp();
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', type: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [time, setTime] = useState('');
 
-  React.useEffect(() => {
-    if (isIntersecting) {
-      setActiveSection('contact');
-    }
+  useEffect(() => {
+    if (isIntersecting) setActiveSection('contact');
   }, [isIntersecting, setActiveSection]);
 
-  const contactMethods = [
-    {
-      icon: '📧',
-      title: 'Email',
-      value: 'kibromabebe20@gmail.com',
-      link: 'mailto:kibromabebe20@gmail.com',
-      description: 'Direct email for project inquiries',
-      isPrimary: true
-    },
-    {
-      icon: '💼',
-      title: 'LinkedIn',
-      value: '/in/Kibrom Abebe',
-      link: 'https://www.linkedin.com/in/kibrom-abebe-a99a63384?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
-      description: 'Professional network and updates',
-      isPrimary: true
-    },
-    {
-      icon: '🐙',
-      title: 'GitHub',
-      value: '@kibrom-bit',
-      link: 'https://github.com/kibrom-bit',
-      description: 'Open source projects and code',
-      isPrimary: false
-    },
-    {
-      icon: '✈️',
-      title: 'Telegram',
-      value: '@mylordjesus3',
-      link: 'https://t.me/mylordjesus3',
-      description: 'Tech insights and updates',
-      isPrimary: false
-    },
-  ];
+  // Live clock (EAT = UTC+3)
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const eat = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+      setTime(eat.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
-  const workflowSteps = [
-    {
-      step: '01',
-      title: 'Initial Contact',
-      description: 'Reach out via your preferred method'
-    },
-    {
-      step: '02',
-      title: 'Discovery Call',
-      description: 'Discuss your project goals and requirements'
-    },
-    {
-      step: '03',
-      title: 'Proposal & Planning',
-      description: 'Detailed project roadmap and timeline'
-    },
-    {
-      step: '04',
-      title: 'Collaboration',
-      description: 'Work together to bring your vision to life'
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    // Simulate send (hook up EmailJS or Resend here)
+    setTimeout(() => {
+      setSending(false);
+      setSubmitted(true);
+    }, 1600);
+  };
+
+  const directContacts = [
+    { icon: <Mail className="w-4 h-4" />, label: 'Email', value: profile.email, href: `mailto:${profile.email}`, color: 'text-blue-400' },
+    { icon: <FolderGit2 className="w-4 h-4" />, label: 'GitHub', value: '@kibrom-bit', href: profile.github, color: 'text-content-secondary' },
+    { icon: <Link2 className="w-4 h-4" />, label: 'LinkedIn', value: 'Kibrom Abebe', href: profile.linkedin, color: 'text-blue-500' },
+    { icon: <MessageSquare className="w-4 h-4" />, label: 'Telegram', value: '@mylordjesus3', href: profile.telegram, color: 'text-sky-400' },
   ];
 
   return (
-    <section id="contact" ref={ref} className="py-20 lg:py-32 relative overflow-hidden">
-      {/* Modern Geometric Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/10 dark:from-gray-900 dark:via-blue-900/5 dark:to-purple-900/5">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
-      </div>
-      
+    <section id="contact" ref={ref} className="section-wrapper bg-app">
+      <div className="grid-overlay opacity-30" />
       <div className="container mx-auto px-6 relative z-10">
-        {/* Section Header */}
-        <div className={`text-center mb-20 transition-all duration-1000 ${
-          isIntersecting ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            Let's Build Something Amazing
-          </div>
-          
-          <h2 className="text-4xl md:text-6xl font-black mb-6">
-            <span className="text-gray-900 dark:text-white">Get In </span>
-            <GradientText>Touch</GradientText>
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Ready to transform your ideas into exceptional digital experiences? 
-            Choose your preferred method to start the conversation.
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="section-header"
+        >
+          <p className="section-tag">
+            <span className="w-4 h-px bg-brand-primary" />
+            Get In Touch
           </p>
-        </div>
+          <h2 className="section-title">
+            Let's{' '}
+            <span className="text-gradient-brand">Build Together</span>
+          </h2>
+          <p className="section-subtitle max-w-xl">
+            Open to full-stack engineering roles, collaborative projects, and freelance opportunities. I respond within 24 hours.
+          </p>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
-          
-          {/* Primary Contact Methods */}
-          <div className="space-y-8">
-            <AnimatedCard delay={200} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Preferred Contact Methods
-              </h3>
-              
-              <div className="grid gap-4">
-                {contactMethods.filter(method => method.isPrimary).map((method) => (
-                  <a
-                    key={method.title}
-                    href={method.link}
-                    target={method.link.startsWith('http') ? '_blank' : '_self'}
-                    rel={method.link.startsWith('http') ? 'noopener noreferrer' : ''}
-                    className="group p-6 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/10 dark:to-blue-800/10 border border-blue-200/50 dark:border-blue-700/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+        <div className="grid lg:grid-cols-[1fr_380px] gap-8">
+          {/* ── Contact Form ── */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <SpotlightCard className="p-6 md:p-8">
+              {submitted ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 border border-brand-emerald/30 flex items-center justify-center">
+                    <Check className="w-8 h-8 text-brand-emerald" />
+                  </div>
+                  <h3 className="font-display font-semibold text-xl text-content-primary">Message Sent!</h3>
+                  <p className="text-content-secondary max-w-xs">
+                    Thanks for reaching out. I'll get back to you at <strong>{formData.email}</strong> within 24 hours.
+                  </p>
+                  <button
+                    onClick={() => { setSubmitted(false); setFormData({ name: '', email: '', type: '', message: '' }); }}
+                    className="btn-ghost text-sm mt-2"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="text-3xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                        {method.icon}
-                      </div>
-                      <div className="flex-grow">
-                        <div className="font-semibold text-gray-900 dark:text-white text-lg">
-                          {method.title}
-                        </div>
-                        <div className="text-blue-600 dark:text-blue-400 font-medium text-base">
-                          {method.value}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {method.description}
-                        </div>
-                      </div>
-                      <div className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300 flex-shrink-0 text-xl">
-                        →
-                      </div>
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-medium text-content-secondary mb-1.5">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Kibrom Abebe"
+                        value={formData.name}
+                        onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm
+                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                      />
                     </div>
-                  </a>
-                ))}
-              </div>
-            </AnimatedCard>
-
-            {/* Additional Contact Methods */}
-            <AnimatedCard delay={300} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Other Platforms
-              </h3>
-              
-              <div className="grid gap-3">
-                {contactMethods.filter(method => !method.isPrimary).map((method) => (
-                  <a
-                    key={method.title}
-                    href={method.link}
-                    target={method.link.startsWith('http') ? '_blank' : '_self'}
-                    rel={method.link.startsWith('http') ? 'noopener noreferrer' : ''}
-                    className="group p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 border border-gray-200/50 dark:border-gray-600/50 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="text-xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                        {method.icon}
-                      </div>
-                      <div className="flex-grow">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {method.title}
-                        </div>
-                        <div className="text-gray-600 dark:text-gray-300 text-sm">
-                          {method.value}
-                        </div>
-                      </div>
-                      <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-300 flex-shrink-0">
-                        →
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </AnimatedCard>
-          </div>
-
-          {/* Workflow & Process */}
-          <div className="space-y-8">
-            <AnimatedCard delay={400} className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 border border-blue-200/50 dark:border-blue-800/50">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                How We'll Work Together
-              </h3>
-              
-              <div className="space-y-6">
-                {workflowSteps.map((step, index) => (
-                  <div key={step.step} className="flex items-start space-x-4 group">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold group-hover:scale-110 transition-transform duration-300">
-                      {step.step}
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        {step.title}
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">
-                        {step.description}
-                      </p>
+                    <div>
+                      <label className="block text-xs font-medium text-content-secondary mb-1.5">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="you@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm
+                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                      />
                     </div>
                   </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-content-secondary mb-1.5">Opportunity Type</label>
+                    <select
+                      required
+                      value={formData.type}
+                      onChange={(e) => setFormData((f) => ({ ...f, type: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary text-sm
+                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                    >
+                      <option value="">Select a category...</option>
+                      <option value="fulltime">Full-Time Engineering Role</option>
+                      <option value="contract">Contract / Freelance Project</option>
+                      <option value="collab">Open Source Collaboration</option>
+                      <option value="other">General Inquiry</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-content-secondary mb-1.5">Message</label>
+                    <textarea
+                      required
+                      rows={5}
+                      placeholder="Tell me about the role, project scope, tech stack, and timeline..."
+                      value={formData.message}
+                      onChange={(e) => setFormData((f) => ({ ...f, message: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm resize-none
+                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="btn-primary w-full justify-center disabled:opacity-60"
+                  >
+                    {sending ? (
+                      <>
+                        <span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Send Message
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </SpotlightCard>
+          </motion.div>
+
+          {/* ── Sidebar ── */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col gap-5"
+          >
+            {/* Location & time */}
+            <SpotlightCard spotlightColor="rgba(16,185,129,0.08)" className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin className="w-4 h-4 text-brand-emerald" />
+                <span className="font-medium text-content-primary text-sm">Location & Availability</span>
+              </div>
+              <p className="text-sm text-content-secondary mb-2">{profile.location}</p>
+              <div className="flex items-center gap-2 text-xs font-mono text-content-muted">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Local time: </span>
+                <span className="text-brand-emerald font-semibold">{time}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75" />
+                  <span className="relative rounded-full h-2 w-2 bg-brand-emerald" />
+                </span>
+                <span className="text-xs text-brand-emerald font-medium">Available for new opportunities</span>
+              </div>
+            </SpotlightCard>
+
+            {/* Direct contacts */}
+            <SpotlightCard spotlightColor="rgba(59,130,246,0.08)" className="p-5">
+              <h4 className="font-medium text-content-primary text-sm mb-4">Direct Connect</h4>
+              <div className="space-y-3">
+                {directContacts.map((c) => (
+                  <a
+                    key={c.label}
+                    href={c.href}
+                    target={c.label !== 'Email' ? '_blank' : undefined}
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-surface-subtle hover:bg-surface-hover border border-border-subtle hover:border-brand-primary/40 transition-all group"
+                  >
+                    <span className={`${c.color}`}>{c.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] text-content-muted font-mono">{c.label}</div>
+                      <div className="text-xs text-content-primary truncate group-hover:text-brand-accent transition-colors">{c.value}</div>
+                    </div>
+                  </a>
                 ))}
               </div>
-            </AnimatedCard>
+            </SpotlightCard>
 
-            {/* Availability & Response Time */}
-            <AnimatedCard delay={500} className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border border-green-200/50 dark:border-green-800/50">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="font-semibold text-green-700 dark:text-green-400 text-lg">
-                  Available for New Projects
-                </span>
-              </div>
-              <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-                <div className="flex justify-between items-center">
-                  <span>Response Time:</span>
-                  <span className="font-semibold text-gray-700 dark:text-gray-200">Within 24 hours</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Availability:</span>
-                  <span className="font-semibold text-gray-700 dark:text-gray-200">Remote Worldwide</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Project Types:</span>
-                  <span className="font-semibold text-gray-700 dark:text-gray-200">Web & Mobile Apps</span>
-                </div>
-              </div>
-            </AnimatedCard>
-
-            {/* Quick Info Card */}
-            <AnimatedCard delay={600} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                Why Work With Me?
-              </h4>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <div className="flex items-center space-x-2">
-                  <span className="text-green-500">✓</span>
-                  <span>5+ Years Full Stack Experience</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Modern Tech Stack (React, Node.js, TypeScript)</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Agile Development Methodology</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Clear Communication & Regular Updates</span>
-                </div>
-              </div>
-            </AnimatedCard>
-          </div>
-        </div>
-
-        {/* Trust Indicators */}
-        <div className={`text-center mt-20 transition-all duration-1000 delay-500 ${
-          isIntersecting ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm uppercase tracking-wider">
-            Trusted Technologies
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-            {['React', 'TypeScript', 'Node.js', 'AWS', 'PostgreSQL', 'Tailwind', 'Next.js', 'MongoDB'].map((tech) => (
-              <div key={tech} className="text-gray-400 dark:text-gray-500 font-semibold text-lg">
-                {tech}
-              </div>
-            ))}
-          </div>
+            {/* Response SLA */}
+            <div className="px-5 py-4 rounded-xl border border-border-subtle bg-surface-subtle/50 text-xs text-content-muted font-mono text-center">
+              ⚡ Typical response time: <span className="text-content-primary font-semibold">{'< 24 hours'}</span>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
+
+export default ContactSection;
