@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "publishedAt": "2026-09-30T15:28:24.055Z",
+  "publishedAt": "2026-09-30T18:23:46.552Z",
   "profile": {
     "name": "Kibrom Abebe",
     "handle": "kebi",
@@ -95,8 +95,8 @@
   "projects": [
     {
       "id": "nexus-api-gateway",
-      "title": "Nexus API Gateway",
-      "tagline": "High-throughput NestJS microservice gateway handling 10k+ concurrent sessions with sub-200ms p99 latency.",
+      "title": "Koinonia – Community & LMS Ecosystem",
+      "tagline": "Full-stack fellowship management and LMS platform featuring multi-tiered RBAC, course progression, member affairs workflow, and digital resource archives.",
       "category": "backend",
       "featured": true,
       "timeline": "Jan 2025 – Jun 2025",
@@ -118,7 +118,7 @@
         {
           "label": "P99 Latency",
           "value": "<180ms",
-          "description": "Under 10k concurrent sessions"
+          "description": "Under 1k concurrent sessions"
         },
         {
           "label": "Endpoints",
@@ -126,8 +126,8 @@
           "description": "Fully documented via OpenAPI 3.1"
         }
       ],
-      "problemStatement": "A university IT system required a unified API layer to federate 6 independent legacy services — each with different auth models, data schemas, and rate limits — into a single, consistent REST interface consumable by a React SPA and a Flutter mobile client.",
-      "architectureDescription": "Client → NestJS Gateway (JWT Guard + Rate Limiter) → Service Router → [Auth Svc | Student Svc | Records Svc] → PostgreSQL / Redis Cache",
+      "problemStatement": "Enterprise engineering challenge.",
+      "architectureDescription": "Modular Clean Architecture.",
       "tradeoffs": [
         {
           "decision": "Caching Strategy",
@@ -143,8 +143,8 @@
         }
       ],
       "role": "Lead Backend Architect — sole ownership of NestJS gateway, OpenAPI specs, and Docker Compose orchestration.",
-      "githubUrl": "https://github.com/kibrom-bit/nexus-api-gateway",
-      "liveUrl": "https://nexus-gateway-api.onrender.com",
+      "githubUrl": "https://github.com/Koinonia-Developers/Koinonia-frontend.git",
+      "liveUrl": "https://koinonia-frontend-seven.vercel.app/",
       "apiEndpoint": {
         "method": "GET",
         "path": "/api/v1/gateway/health",
