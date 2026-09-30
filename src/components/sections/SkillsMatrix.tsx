@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { skillCategories } from '../../data/portfolioData';
@@ -9,37 +9,13 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   Monitor, Server, Database, Cpu, GitBranch,
 };
 
-const categoryBadgeStyle: Record<string, { border: string; bg: string; text: string; glow: string }> = {
-  blue: {
-    border: 'border-blue-500/30 hover:border-blue-500/60',
-    bg: 'bg-blue-500/10 group-hover:bg-blue-500/15',
-    text: 'text-blue-400',
-    glow: 'group-hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]',
-  },
-  violet: {
-    border: 'border-violet-500/30 hover:border-violet-500/60',
-    bg: 'bg-violet-500/10 group-hover:bg-violet-500/15',
-    text: 'text-violet-400',
-    glow: 'group-hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]',
-  },
-  emerald: {
-    border: 'border-emerald-500/30 hover:border-emerald-500/60',
-    bg: 'bg-emerald-500/10 group-hover:bg-emerald-500/15',
-    text: 'text-emerald-400',
-    glow: 'group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
-  },
-  amber: {
-    border: 'border-amber-500/30 hover:border-amber-500/60',
-    bg: 'bg-amber-500/10 group-hover:bg-amber-500/15',
-    text: 'text-amber-400',
-    glow: 'group-hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]',
-  },
-  rose: {
-    border: 'border-rose-500/30 hover:border-rose-500/60',
-    bg: 'bg-rose-500/10 group-hover:bg-rose-500/15',
-    text: 'text-rose-400',
-    glow: 'group-hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]',
-  },
+// Refined, modern color palette for glows and borders
+const themeStyles: Record<string, { border: string; bg: string; text: string; dot: string }> = {
+  blue: { border: 'border-blue-500/20 hover:border-blue-500/50', bg: 'bg-blue-500/5 hover:bg-blue-500/10', text: 'text-blue-300', dot: 'bg-blue-400' },
+  violet: { border: 'border-violet-500/20 hover:border-violet-500/50', bg: 'bg-violet-500/5 hover:bg-violet-500/10', text: 'text-violet-300', dot: 'bg-violet-400' },
+  emerald: { border: 'border-emerald-500/20 hover:border-emerald-500/50', bg: 'bg-emerald-500/5 hover:bg-emerald-500/10', text: 'text-emerald-300', dot: 'bg-emerald-400' },
+  amber: { border: 'border-amber-500/20 hover:border-amber-500/50', bg: 'bg-amber-500/5 hover:bg-amber-500/10', text: 'text-amber-300', dot: 'bg-amber-400' },
+  rose: { border: 'border-rose-500/20 hover:border-rose-500/50', bg: 'bg-rose-500/5 hover:bg-rose-500/10', text: 'text-rose-300', dot: 'bg-rose-400' },
 };
 
 const SkillsMatrix: React.FC = () => {
@@ -51,115 +27,133 @@ const SkillsMatrix: React.FC = () => {
     if (isIntersecting) setActiveSection('skills');
   }, [isIntersecting, setActiveSection]);
 
-  // Aggregate all skills if 'all' is selected, or pick the active category
-  const displayedSkills = activeCategory === 'all'
-    ? skillCategories.flatMap((cat) => cat.skills.map((s) => ({ ...s, categoryColor: cat.color, categoryLabel: cat.label })))
-    : (skillCategories.find((c) => c.id === activeCategory)?.skills.map((s) => ({
-        ...s,
-        categoryColor: skillCategories.find((c) => c.id === activeCategory)?.color || 'blue',
-        categoryLabel: skillCategories.find((c) => c.id === activeCategory)?.label || '',
-      })) || []);
+  // Filter categories based on selection
+  const displayedCategories = activeCategory === 'all'
+    ? skillCategories
+    : skillCategories.filter(cat => cat.id === activeCategory);
 
   return (
-    <section id="skills" ref={ref} className="section-wrapper bg-transparent">
+    <section id="skills" ref={ref} className="section-wrapper bg-transparent py-20 relative overflow-hidden">
+
+      {/* Subtle Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none" />
+
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
+          transition={{ duration: 0.5 }}
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
         >
-          <p className="section-tag">
-            <span className="w-4 h-px bg-brand-primary" />
-            Technical Stack
-          </p>
-          <h2 className="section-title">
-            Skills & <span className="text-gradient-brand">Technologies</span>
-          </h2>
-          <p className="section-subtitle max-w-xl">
-            A comprehensive overview of languages, frameworks, and system engineering tools I utilize in production.
-          </p>
+          <div className="max-w-2xl">
+            <p className="flex items-center gap-2 text-sm font-mono text-brand-primary mb-3">
+              <span className="w-6 h-px bg-brand-primary/50" />
+              System Architecture & Stack
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-content-primary mb-4">
+              Skills & <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-violet-500">Technologies</span>
+            </h2>
+            <p className="text-content-secondary text-base leading-relaxed">
+              Tools and technologies I use to build scalable, high-performance applications from 0 to 1.
+            </p>
+          </div>
+
+          {/* Horizontally scrollable tabs for mobile optimization */}
+          <div className="flex overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:pb-0 hide-scrollbar gap-2 w-full md:w-auto snap-x">
+            <button
+              onClick={() => setActiveCategory('all')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${activeCategory === 'all'
+                ? 'bg-content-primary text-surface shadow-md'
+                : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Overview</span>
+            </button>
+
+            {skillCategories.map((cat) => {
+              const CatIcon = iconMap[cat.icon];
+              const isActive = cat.id === activeCategory;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${isActive
+                    ? 'bg-content-primary text-surface shadow-md'
+                    : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+                    }`}
+                >
+                  {CatIcon && <CatIcon className="w-4 h-4 shrink-0" />}
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </motion.div>
 
-        {/* Category Filter Tabs - Simple & Modern Devpost Style */}
-        <div className="flex flex-wrap items-center gap-2 mb-10 pb-2 border-b border-border-subtle">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all duration-200 ${
-              activeCategory === 'all'
-                ? 'bg-brand-primary text-white shadow-sm'
-                : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>All Technologies</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20">
-              {skillCategories.reduce((acc, cat) => acc + cat.skills.length, 0)}
-            </span>
-          </button>
+        {/* Bento Grid Layout */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {displayedCategories.map((category, idx) => {
+              const Icon = iconMap[category.icon];
+              const style = themeStyles[category.color] || themeStyles.blue;
 
-          {skillCategories.map((cat) => {
-            const CatIcon = iconMap[cat.icon];
-            const isActive = cat.id === activeCategory;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-brand-primary text-white shadow-sm'
-                    : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-                }`}
-              >
-                {CatIcon && <CatIcon className="w-3.5 h-3.5 shrink-0" />}
-                <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white/20' : 'bg-surface-subtle text-content-muted'}`}>
-                  {cat.skills.length}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <motion.div
+                  key={category.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`group relative p-6 rounded-3xl border border-border-subtle bg-surface/50 backdrop-blur-sm hover:border-border-strong transition-colors flex flex-col h-full`}
+                >
+                  {/* Category Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl ${style.bg} ${style.text}`}>
+                        {Icon && <Icon className="w-5 h-5" />}
+                      </div>
+                      <h3 className="font-semibold text-content-primary text-lg">
+                        {category.label}
+                      </h3>
+                    </div>
+                    <span className="text-xs font-mono text-content-muted">
+                      {category.skills.length} tools
+                    </span>
+                  </div>
 
-        {/* Clean Tech Cards Grid - No boring progress lines */}
-        <motion.div
-          key={activeCategory}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5"
-        >
-          {displayedSkills.map((skill, idx) => {
-            const style = categoryBadgeStyle[skill.categoryColor] || categoryBadgeStyle.blue;
-            return (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.3) }}
-                whileHover={{ y: -3, scale: 1.02 }}
-                className={`group relative p-4 rounded-2xl border ${style.border} bg-surface transition-all duration-200 cursor-default ${style.glow}`}
-              >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className="font-semibold text-sm text-content-primary tracking-tight">
-                    {skill.name}
-                  </span>
-                  <Sparkles className={`w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity ${style.text}`} />
-                </div>
-                <div className="flex items-center justify-between mt-3 pt-2 border-t border-border-subtle/50 text-[11px] font-mono">
-                  <span className={`px-2 py-0.5 rounded-md ${style.bg} ${style.text} text-[10px]`}>
-                    {skill.categoryLabel || 'Stack'}
-                  </span>
-                  <span className="text-content-muted text-[10px]">
-                    Production
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })}
+                  {/* Skills Pills / Tags */}
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {category.skills.map((skill, skillIdx) => (
+                      <motion.div
+                        key={skill.name}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: (idx * 0.1) + (skillIdx * 0.05) }}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${style.border} ${style.bg} transition-all duration-300 hover:-translate-y-0.5 cursor-default`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                        <span className="text-sm font-medium text-content-secondary group-hover:text-content-primary">
+                          {skill.name}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Global style for hiding scrollbar on the tabs */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
     </section>
   );
 };
