@@ -1,9 +1,11 @@
 import React from 'react';
 import { usePortfolio } from '../../contexts/PortfolioContext';
-import { GitBranch, Link2, Mail, MessageCircle, Sliders } from 'lucide-react';
+import { useAdmin } from '../../contexts/AdminContext';
+import { GitBranch, Link2, Mail, MessageCircle, Sliders, Lock } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const { profile, openCustomizer } = usePortfolio();
+  const { isAdmin, isPreviewMode, openAuthModal } = useAdmin();
   const year = new Date().getFullYear();
 
   return (
@@ -22,18 +24,29 @@ const Footer: React.FC = () => {
             </span>
           </div>
 
-          {/* Copyright */}
-          <div className="flex flex-col sm:flex-row items-center gap-3">
+          {/* Copyright & Discreet Admin Access */}
+          <div className="flex flex-col sm:flex-row items-center gap-2.5">
             <p className="text-xs text-content-muted font-mono text-center">
               © {year} {profile.name} · Clean Architecture & High-Performance Web
             </p>
-            <button
-              onClick={openCustomizer}
-              className="text-xs font-mono text-brand-primary hover:underline flex items-center gap-1"
-            >
-              <Sliders className="w-3 h-3" />
-              Customize
-            </button>
+            {isAdmin && !isPreviewMode ? (
+              <button
+                onClick={openCustomizer}
+                className="text-xs font-mono text-brand-primary hover:underline flex items-center gap-1"
+              >
+                <Sliders className="w-3 h-3" />
+                Studio
+              </button>
+            ) : (
+              <button
+                onClick={openAuthModal}
+                className="text-content-muted/30 hover:text-content-secondary transition-colors p-1"
+                title="Owner Studio Portal"
+                aria-label="Admin Portal"
+              >
+                <Lock className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
           {/* Social links */}

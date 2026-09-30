@@ -7,6 +7,11 @@ import {
   mockEndpoints as defaultMockEndpoints,
   Project,
 } from '../data/portfolioData';
+import {
+  generatePublishedJson,
+  generatePortfolioDataTs,
+  triggerFileDownload,
+} from '../utils/publishHelper';
 
 export type BackgroundPattern = 'grid' | 'dots' | 'mesh' | 'none';
 
@@ -158,6 +163,13 @@ interface PortfolioContextType {
   resetToDefaults: () => void;
   exportJson: () => string;
   importJson: (jsonStr: string) => boolean;
+  // Publishing capabilities
+  hasUnpublishedChanges: boolean;
+  lastPublishedAt: string | null;
+  publishEdits: () => { success: boolean; json: string; tsCode: string; message: string };
+  downloadPublishedJson: () => void;
+  downloadPublishedTs: () => void;
+  revertToPublished: () => void;
 }
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
@@ -166,6 +178,8 @@ const STORAGE_KEYS = {
   PROFILE: 'kebi_portfolio_profile_v2',
   PROJECTS: 'kebi_portfolio_projects_v2',
   THEME: 'kebi_portfolio_theme_v2',
+  PUBLISHED_SNAPSHOT: 'kebi_portfolio_published_v2',
+  LAST_PUBLISHED: 'kebi_portfolio_published_at_v2',
 };
 
 export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -200,6 +214,68 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   });
 
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
+  const [lastPublishedAt, setLastPublishedAt] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.LAST_PUBLISHED);
+    } catch {
+      return null;
+    }
+  });
+
+  // Try to load officially published portfolio-data.json if present
+  useEffect(() => {
+    // Only attempt if not already explicitly overridden by local owner storage
+    const hasLocalEdits = localStorage.getItem(STORAGE_KEYS.PROFILE) || localStorage.getItem(STORAGE_KEYS.PROJECTS);
+    if (!hasLocalEdits) {
+      fetch('/portfolio-data.json')
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error('No published json found');
+        })
+        .then((data) => {
+          if (data && data.profile) {
+            setProfile((prev) => ({ ...prev, ...data.profile }));
+          }
+          if (data && Array.isArray(data.projects)) {
+            setProjects(data.projects);
+          }
+          if (data && data.themeConfig) {
+            setThemeConfig((prev) => ({ ...prev, ...data.themeConfig }));
+          }
+          if (data && data.publishedAt) {
+            setLastPublishedAt(data.publishedAt);
+          }
+        })
+        .catch(() => {
+          // Normal fallback: using defaults
+        });
+    }
+  }, []);
+
+  // Check if current state has unpublished changes
+  useEffect(() => {
+    try {
+      const publishedStr = localStorage.getItem(STORAGE_KEYS.PUBLISHED_SNAPSHOT);
+      if (!publishedStr) {
+        // If never published, check if diff from defaults
+        const isModified =
+          JSON.stringify(profile) !== JSON.stringify(INITIAL_PROFILE) ||
+          JSON.stringify(projects) !== JSON.stringify(defaultProjects) ||
+          JSON.stringify(themeConfig) !== JSON.stringify(INITIAL_THEME);
+        setHasUnpublishedChanges(isModified);
+        return;
+      }
+      const published = JSON.parse(publishedStr);
+      const isDiff =
+        JSON.stringify(published.profile) !== JSON.stringify(profile) ||
+        JSON.stringify(published.projects) !== JSON.stringify(projects) ||
+        JSON.stringify(published.themeConfig) !== JSON.stringify(themeConfig);
+      setHasUnpublishedChanges(isDiff);
+    } catch {
+      setHasUnpublishedChanges(false);
+    }
+  }, [profile, projects, themeConfig]);
 
   // Apply theme to DOM variables in real time
   useEffect(() => {
@@ -307,21 +383,86 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
     localStorage.removeItem(STORAGE_KEYS.PROJECTS);
     localStorage.removeItem(STORAGE_KEYS.THEME);
+    localStorage.removeItem(STORAGE_KEYS.PUBLISHED_SNAPSHOT);
+    localStorage.removeItem(STORAGE_KEYS.LAST_PUBLISHED);
     setProfile(INITIAL_PROFILE);
     setProjects(defaultProjects);
     setThemeConfig(INITIAL_THEME);
+    setHasUnpublishedChanges(false);
+    setLastPublishedAt(null);
   }, []);
 
+  // Revert working edits back to last published snapshot
+  const revertToPublished = useCallback(() => {
+    try {
+      const publishedStr = localStorage.getItem(STORAGE_KEYS.PUBLISHED_SNAPSHOT);
+      if (publishedStr) {
+        const published = JSON.parse(publishedStr);
+        if (published.profile) {
+          setProfile(published.profile);
+          localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(published.profile));
+        }
+        if (Array.isArray(published.projects)) {
+          setProjects(published.projects);
+          localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(published.projects));
+        }
+        if (published.themeConfig) {
+          setThemeConfig(published.themeConfig);
+          localStorage.setItem(STORAGE_KEYS.THEME, JSON.stringify(published.themeConfig));
+        }
+        setHasUnpublishedChanges(false);
+      } else {
+        resetToDefaults();
+      }
+    } catch (e) {
+      console.error('Failed to revert to published snapshot', e);
+    }
+  }, [resetToDefaults]);
+
+  // Publish edits: locks in current state as the official published snapshot and prepares export assets
+  const publishEdits = useCallback(() => {
+    const now = new Date().toISOString();
+    const jsonStr = generatePublishedJson(profile, themeConfig, projects);
+    const tsCode = generatePortfolioDataTs(profile, projects);
+
+    try {
+      localStorage.setItem(
+        STORAGE_KEYS.PUBLISHED_SNAPSHOT,
+        JSON.stringify({ profile, projects, themeConfig, publishedAt: now })
+      );
+      localStorage.setItem(STORAGE_KEYS.LAST_PUBLISHED, now);
+      setLastPublishedAt(now);
+      setHasUnpublishedChanges(false);
+      return {
+        success: true,
+        json: jsonStr,
+        tsCode,
+        message: 'Changes published successfully to local release registry!',
+      };
+    } catch (e) {
+      console.error('Publish error', e);
+      return {
+        success: false,
+        json: jsonStr,
+        tsCode,
+        message: 'Failed to record publish snapshot.',
+      };
+    }
+  }, [profile, themeConfig, projects]);
+
+  const downloadPublishedJson = useCallback(() => {
+    const jsonStr = generatePublishedJson(profile, themeConfig, projects);
+    triggerFileDownload(jsonStr, 'portfolio-data.json', 'application/json');
+  }, [profile, themeConfig, projects]);
+
+  const downloadPublishedTs = useCallback(() => {
+    const tsCode = generatePortfolioDataTs(profile, projects);
+    triggerFileDownload(tsCode, 'portfolioData.ts', 'text/typescript');
+  }, [profile, projects]);
+
   const exportJson = useCallback(() => {
-    const data = {
-      version: '2.0',
-      exportedAt: new Date().toISOString(),
-      profile,
-      projects,
-      themeConfig,
-    };
-    return JSON.stringify(data, null, 2);
-  }, [profile, projects, themeConfig]);
+    return generatePublishedJson(profile, themeConfig, projects);
+  }, [profile, themeConfig, projects]);
 
   const importJson = useCallback(
     (jsonStr: string) => {
@@ -366,6 +507,12 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
         resetToDefaults,
         exportJson,
         importJson,
+        hasUnpublishedChanges,
+        lastPublishedAt,
+        publishEdits,
+        downloadPublishedJson,
+        downloadPublishedTs,
+        revertToPublished,
       }}
     >
       {children}

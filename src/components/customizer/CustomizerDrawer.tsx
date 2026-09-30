@@ -6,6 +6,7 @@ import {
   ThemePreset,
   BackgroundPattern,
 } from '../../contexts/PortfolioContext';
+import { useAdmin } from '../../contexts/AdminContext';
 import { Project } from '../../data/portfolioData';
 import {
   X,
@@ -23,11 +24,20 @@ import {
   Download,
   Upload,
   Sparkles,
+  Rocket,
+  CheckCircle2,
+  AlertTriangle,
+  FolderGit2,
+  Globe,
+  RefreshCw,
+  Shield,
+  Key,
 } from 'lucide-react';
 
-type Tab = 'theme' | 'profile' | 'projects' | 'contact' | 'backup';
+type Tab = 'theme' | 'profile' | 'projects' | 'contact' | 'publish';
 
 export const CustomizerDrawer: React.FC = () => {
+  const { isAdmin, isPreviewMode, changePasskey } = useAdmin();
   const {
     profile,
     projects,
@@ -45,11 +55,30 @@ export const CustomizerDrawer: React.FC = () => {
     resetToDefaults,
     exportJson,
     importJson,
+    hasUnpublishedChanges,
+    lastPublishedAt,
+    publishEdits,
+    downloadPublishedJson,
+    downloadPublishedTs,
+    revertToPublished,
   } = usePortfolio();
 
   const [activeTab, setActiveTab] = useState<Tab>('theme');
   const [copied, setCopied] = useState(false);
+  const [copiedTs, setCopiedTs] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Passkey change state (for when already logged in)
+  const [currentPassInput, setCurrentPassInput] = useState('');
+  const [newPassInput, setNewPassInput] = useState('');
+  const [passkeyChangeMsg, setPasskeyChangeMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // GitHub Publish Sync state
+  const [githubToken, setGithubToken] = useState(() => localStorage.getItem('kebi_gh_token') || '');
+  const [githubRepo, setGithubRepo] = useState(() => localStorage.getItem('kebi_gh_repo') || 'kibrom-bit/kebi-portfolio');
+  const [githubBranch, setGithubBranch] = useState(() => localStorage.getItem('kebi_gh_branch') || 'main');
+  const [isGithubSyncing, setIsGithubSyncing] = useState(false);
+  const [githubSyncResult, setGithubSyncResult] = useState<{ success: boolean; msg: string } | null>(null);
 
   // New/Edit Project Form state
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
@@ -215,15 +244,94 @@ export const CustomizerDrawer: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDownloadBackup = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(exportJson());
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `kebi-portfolio-config-${new Date().toISOString().slice(0, 10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast('Configuration downloaded');
+  const handlePublishNow = () => {
+    const res = publishEdits();
+    if (res.success) {
+      showToast('🚀 Changes published to active registry!');
+    }
+  };
+
+  const handleCopyTs = () => {
+    const res = publishEdits();
+    navigator.clipboard.writeText(res.tsCode);
+    setCopiedTs(true);
+    showToast('TypeScript portfolioData.ts copied!');
+    setTimeout(() => setCopiedTs(false), 2200);
+  };
+
+  const handlePushToGithub = async () => {
+    if (!githubToken.trim()) {
+      setGithubSyncResult({ success: false, msg: 'Please provide a GitHub Personal Access Token.' });
+      return;
+    }
+    setIsGithubSyncing(true);
+    setGithubSyncResult(null);
+
+    try {
+      localStorage.setItem('kebi_gh_token', githubToken.trim());
+      localStorage.setItem('kebi_gh_repo', githubRepo.trim());
+      localStorage.setItem('kebi_gh_branch', githubBranch.trim());
+
+      const res = publishEdits();
+      const filePath = 'public/portfolio-data.json';
+      const apiUrl = `https://api.github.com/repos/${githubRepo.trim()}/contents/${filePath}?ref=${githubBranch.trim()}`;
+
+      // Check current file SHA
+      let currentSha: string | undefined;
+      try {
+        const getRes = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${githubToken.trim()}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
+        });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          currentSha = fileData.sha;
+        }
+      } catch (err) {
+        // file might not exist yet
+      }
+
+      // Convert json to utf-8 base64
+      const utf8Bytes = new TextEncoder().encode(res.json);
+      let binary = '';
+      utf8Bytes.forEach((b) => (binary += String.fromCharCode(b)));
+      const base64Content = btoa(binary);
+
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${githubToken.trim()}`,
+          Accept: 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `chore(portfolio): publish updates from Studio [${new Date().toISOString()}]`,
+          content: base64Content,
+          branch: githubBranch.trim(),
+          ...(currentSha ? { sha: currentSha } : {}),
+        }),
+      });
+
+      if (!putRes.ok) {
+        const errJson = await putRes.json();
+        throw new Error(errJson.message || 'GitHub API returned error');
+      }
+
+      setGithubSyncResult({
+        success: true,
+        msg: `Successfully pushed to ${githubRepo}! Your hosting platform (Vercel/Netlify) will auto-deploy.`,
+      });
+      showToast('🚀 Pushed to GitHub repository!');
+    } catch (e: any) {
+      setGithubSyncResult({
+        success: false,
+        msg: e.message || 'Failed to push to GitHub. Verify token permissions.',
+      });
+    } finally {
+      setIsGithubSyncing(false);
+    }
   };
 
   const handleApplyImport = () => {
@@ -253,27 +361,10 @@ export const CustomizerDrawer: React.FC = () => {
     showToast('Role removed');
   };
 
+  if (!isAdmin) return null;
+
   return (
     <>
-      {/* Floating Customize Trigger Button */}
-      <motion.button
-        id="open-studio-btn"
-        onClick={openCustomizer}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-xl border border-brand-primary/40 bg-surface/90 text-content-primary hover:border-brand-primary transition-all duration-300 group"
-        aria-label="Customize Website"
-      >
-        <span className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-primary" />
-        </span>
-        <Sliders className="w-4 h-4 text-brand-primary group-hover:rotate-45 transition-transform duration-300" />
-        <span className="text-sm font-semibold tracking-wide">Customize Site</span>
-        <span className="px-1.5 py-0.5 text-[10px] uppercase font-mono font-bold tracking-wider rounded bg-brand-primary/20 text-brand-primary border border-brand-primary/30">
-          Studio
-        </span>
-      </motion.button>
 
       {/* Toast Notification */}
       <AnimatePresence>
@@ -346,10 +437,11 @@ export const CustomizerDrawer: React.FC = () => {
                   { id: 'profile', label: 'Profile & Hero', icon: User },
                   { id: 'projects', label: 'Projects', icon: Briefcase },
                   { id: 'contact', label: 'Contact', icon: Mail },
-                  { id: 'backup', label: 'Backup & Code', icon: Download },
+                  { id: 'publish', label: 'Publish & Deploy', icon: Rocket },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
+                  const isPublish = tab.id === 'publish';
                   return (
                     <button
                       key={tab.id}
@@ -360,8 +452,11 @@ export const CustomizerDrawer: React.FC = () => {
                           : 'border-transparent text-content-muted hover:text-content-primary'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className={`w-4 h-4 ${isPublish && hasUnpublishedChanges ? 'text-amber-400 animate-pulse' : ''}`} />
                       {tab.label}
+                      {isPublish && hasUnpublishedChanges && (
+                        <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                      )}
                     </button>
                   );
                 })}
@@ -794,37 +889,125 @@ export const CustomizerDrawer: React.FC = () => {
                   </div>
                 )}
 
-                {/* ── TAB 5: BACKUP, IMPORT & RESET ─────────────────────────────── */}
-                {activeTab === 'backup' && (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl border border-border-subtle bg-surface-subtle space-y-3">
-                      <div className="text-xs font-bold font-mono uppercase text-content-primary">
-                        Configuration Management
+                {/* ── TAB 5: PUBLISH & DEPLOY ─────────────────────────────────── */}
+                {activeTab === 'publish' && (
+                  <div className="space-y-5 text-xs">
+                    {/* Status Overview Card */}
+                    <div className={`p-4 rounded-xl border ${
+                      hasUnpublishedChanges
+                        ? 'border-amber-500/30 bg-amber-500/5'
+                        : 'border-emerald-500/30 bg-emerald-500/5'
+                    }`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2.5">
+                          {hasUnpublishedChanges ? (
+                            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                          ) : (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                          )}
+                          <div>
+                            <div className="font-bold font-mono text-content-primary">
+                              {hasUnpublishedChanges
+                                ? 'Unpublished Changes Pending'
+                                : 'Portfolio is Fully Published'}
+                            </div>
+                            <div className="text-[11px] text-content-muted mt-0.5">
+                              {hasUnpublishedChanges
+                                ? 'You have draft customizations that have not been locked into release.'
+                                : lastPublishedAt
+                                ? `Last published: ${new Date(lastPublishedAt).toLocaleString()}`
+                                : 'Using verified production blueprint defaults.'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={handlePublishNow}
+                          className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-md shadow-brand-primary/20 shrink-0"
+                        >
+                          <Rocket className="w-3.5 h-3.5" />
+                          <span>Publish Now</span>
+                        </button>
                       </div>
-                      <p className="text-xs text-content-muted leading-relaxed">
-                        Export your full configuration (custom theme, edited profile, projects, and contact info) as JSON to keep a backup or transfer to another device.
+
+                      {hasUnpublishedChanges && (
+                        <div className="mt-3 pt-3 border-t border-amber-500/20 flex items-center justify-between text-[11px] font-mono text-amber-400/90">
+                          <span>Draft edits are previewing live in your browser</span>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Discard unsaved draft edits and revert to last published version?')) {
+                                revertToPublished();
+                                showToast('Reverted to last published snapshot');
+                              }
+                            }}
+                            className="underline hover:text-amber-300"
+                          >
+                            Discard Drafts
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* How Publishing Works Explainer */}
+                    <div className="p-4 rounded-xl border border-border-subtle bg-surface-subtle space-y-2">
+                      <div className="text-xs font-bold font-mono uppercase text-content-primary flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-brand-primary" />
+                        How Publishing Works on Hosted Sites
+                      </div>
+                      <p className="text-content-muted leading-relaxed text-[11px]">
+                        When your portfolio is hosted on Vercel, Netlify, or GitHub Pages, visitors see the published data file. Choose your preferred method below to release your updates to all visitors worldwide:
+                      </p>
+                    </div>
+
+                    {/* Option 1: 1-Click Code & JSON Assets */}
+                    <div className="p-4 rounded-xl border border-border-subtle bg-surface-subtle space-y-3">
+                      <div className="font-bold font-mono uppercase text-xs text-content-primary flex items-center justify-between">
+                        <span>Option 1: Export Release Files</span>
+                        <span className="text-[10px] text-brand-primary font-normal bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/20">Recommended</span>
+                      </div>
+                      <p className="text-[11px] text-content-muted">
+                        Download the updated configuration file and place it in your project:
                       </p>
 
-                      <div className="flex flex-wrap gap-2.5 pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                         <button
-                          onClick={handleDownloadBackup}
-                          className="btn-primary text-xs py-2 px-3 flex items-center gap-1.5"
+                          onClick={downloadPublishedJson}
+                          className="p-3 text-left rounded-xl border border-border-subtle bg-surface hover:border-brand-primary hover:bg-surface-hover transition-all flex flex-col justify-between group"
                         >
-                          <Download className="w-3.5 h-3.5" />
-                          Download JSON Backup
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-semibold text-content-primary group-hover:text-brand-primary">portfolio-data.json</span>
+                            <Download className="w-3.5 h-3.5 text-content-muted group-hover:text-brand-primary" />
+                          </div>
+                          <span className="text-[10px] text-content-muted font-mono leading-tight">
+                            Place in <code>/public</code> folder. All visitors automatically fetch this on load.
+                          </span>
                         </button>
 
                         <button
-                          onClick={() => setIsImportModalOpen(true)}
-                          className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                          onClick={downloadPublishedTs}
+                          className="p-3 text-left rounded-xl border border-border-subtle bg-surface hover:border-brand-primary hover:bg-surface-hover transition-all flex flex-col justify-between group"
                         >
-                          <Upload className="w-3.5 h-3.5" />
-                          Import JSON Config
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-semibold text-content-primary group-hover:text-brand-primary">portfolioData.ts</span>
+                            <Download className="w-3.5 h-3.5 text-content-muted group-hover:text-brand-primary" />
+                          </div>
+                          <span className="text-[10px] text-content-muted font-mono leading-tight">
+                            Replace <code>src/data/portfolioData.ts</code> to compile static build in Git.
+                          </span>
                         </button>
+                      </div>
 
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          onClick={handleCopyTs}
+                          className="btn-ghost text-xs py-1.5 px-2.5 flex items-center gap-1.5"
+                        >
+                          {copiedTs ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          Copy TypeScript Code
+                        </button>
                         <button
                           onClick={handleCopyCode}
-                          className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                          className="btn-ghost text-xs py-1.5 px-2.5 flex items-center gap-1.5"
                         >
                           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                           Copy JSON String
@@ -832,25 +1015,170 @@ export const CustomizerDrawer: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Reset to Factory Defaults */}
-                    <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 space-y-2">
-                      <div className="text-xs font-bold font-mono uppercase text-red-400">
-                        Reset to Defaults
+                    {/* Option 2: Direct GitHub Git Sync */}
+                    <div className="p-4 rounded-xl border border-border-subtle bg-surface-subtle space-y-3">
+                      <div className="font-bold font-mono uppercase text-xs text-content-primary flex items-center gap-2">
+                        <FolderGit2 className="w-4 h-4" />
+                        <span>Option 2: Direct GitHub Auto-Publish</span>
                       </div>
-                      <p className="text-xs text-content-muted">
-                        Revert all profile data, projects, and theme customizations back to the original project state.
+                      <p className="text-[11px] text-content-muted leading-relaxed">
+                        Push updates directly to your GitHub repository without touching terminal or Git. Triggers automatic deploy on Vercel/Netlify.
                       </p>
+
+                      <div className="space-y-2.5 pt-1">
+                        <div>
+                          <label className="text-[10px] font-mono text-content-secondary block mb-1">
+                            GitHub Repository (owner/repo)
+                          </label>
+                          <input
+                            type="text"
+                            value={githubRepo}
+                            onChange={(e) => setGithubRepo(e.target.value)}
+                            placeholder="kibrom-bit/kebi-portfolio"
+                            className="w-full px-3 py-1.5 rounded-lg border border-border-subtle bg-surface text-xs font-mono focus:border-brand-primary focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] font-mono text-content-secondary block mb-1">
+                              Branch
+                            </label>
+                            <input
+                              type="text"
+                              value={githubBranch}
+                              onChange={(e) => setGithubBranch(e.target.value)}
+                              placeholder="main"
+                              className="w-full px-3 py-1.5 rounded-lg border border-border-subtle bg-surface text-xs font-mono focus:border-brand-primary focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-mono text-content-secondary block mb-1">
+                              Personal Access Token
+                            </label>
+                            <input
+                              type="password"
+                              value={githubToken}
+                              onChange={(e) => setGithubToken(e.target.value)}
+                              placeholder="ghp_xxxxxxxxxxxx"
+                              className="w-full px-3 py-1.5 rounded-lg border border-border-subtle bg-surface text-xs font-mono focus:border-brand-primary focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {githubSyncResult && (
+                          <div
+                            className={`p-2.5 rounded-lg text-xs font-mono ${
+                              githubSyncResult.success
+                                ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                            }`}
+                          >
+                            {githubSyncResult.msg}
+                          </div>
+                        )}
+
+                        <button
+                          onClick={handlePushToGithub}
+                          disabled={isGithubSyncing}
+                          className="btn-primary w-full text-xs py-2 flex items-center justify-center gap-2"
+                        >
+                          {isGithubSyncing ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Pushing Commit to GitHub...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Rocket className="w-3.5 h-3.5" />
+                              <span>Commit & Publish to GitHub Repo</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Security & Access - Change Passkey */}
+                    <div className="p-4 rounded-xl border border-border-subtle bg-surface-subtle space-y-3">
+                      <div className="font-bold font-mono uppercase text-xs text-content-primary flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-brand-primary" />
+                        <span>Security & Access</span>
+                      </div>
+                      <p className="text-[11px] text-content-muted">
+                        Change your studio access passkey below.
+                      </p>
+
+                      <div className="space-y-2">
+                        <input
+                          type="password"
+                          value={currentPassInput}
+                          onChange={(e) => { setCurrentPassInput(e.target.value); setPasskeyChangeMsg(null); }}
+                          placeholder="Current passkey"
+                          className="w-full px-3 py-2 rounded-lg border border-border-subtle bg-surface text-xs font-mono focus:border-brand-primary focus:outline-none"
+                        />
+                        <input
+                          type="password"
+                          value={newPassInput}
+                          onChange={(e) => { setNewPassInput(e.target.value); setPasskeyChangeMsg(null); }}
+                          placeholder="New passkey (min 4 characters)"
+                          className="w-full px-3 py-2 rounded-lg border border-border-subtle bg-surface text-xs font-mono focus:border-brand-primary focus:outline-none"
+                        />
+
+                        {passkeyChangeMsg && (
+                          <div className={`p-2.5 rounded-lg text-xs font-mono ${
+                            passkeyChangeMsg.type === 'success'
+                              ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                              : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                          }`}>
+                            {passkeyChangeMsg.text}
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            if (newPassInput.trim().length < 4) {
+                              setPasskeyChangeMsg({ type: 'error', text: 'New passkey must be at least 4 characters.' });
+                              return;
+                            }
+                            const ok = changePasskey(currentPassInput, newPassInput);
+                            if (ok) {
+                              setPasskeyChangeMsg({ type: 'success', text: 'Passkey updated successfully!' });
+                              setCurrentPassInput('');
+                              setNewPassInput('');
+                              showToast('Admin passkey updated');
+                            } else {
+                              setPasskeyChangeMsg({ type: 'error', text: 'Current passkey is incorrect.' });
+                            }
+                          }}
+                          className="btn-primary w-full text-xs py-2 flex items-center justify-center gap-2"
+                        >
+                          <Key className="w-3.5 h-3.5" />
+                          Update Passkey
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Import & Reset */}
+                    <div className="flex items-center justify-between pt-2">
+                      <button
+                        onClick={() => setIsImportModalOpen(true)}
+                        className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        Import JSON
+                      </button>
+
                       <button
                         onClick={() => {
-                          if (window.confirm('Are you sure you want to reset all portfolio customizations back to original defaults?')) {
+                          if (window.confirm('Reset all customizations back to factory defaults?')) {
                             resetToDefaults();
-                            showToast('Portfolio reset to factory blueprint');
+                            showToast('Portfolio reset to defaults');
                           }
                         }}
-                        className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                        className="text-xs text-red-400/80 hover:text-red-400 flex items-center gap-1"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        Reset All Data to Blueprint Defaults
+                        <RotateCcw className="w-3 h-3" />
+                        Factory Reset
                       </button>
                     </div>
                   </div>

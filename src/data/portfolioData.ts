@@ -148,6 +148,7 @@ export type Project = {
   role: string;
   liveUrl?: string;
   githubUrl?: string;
+  image?: string;
   apiEndpoint?: { method: string; path: string; description: string; response: object };
   accentColor: string;
 };
@@ -185,7 +186,8 @@ export const projects: Project[] = [
       },
     ],
     role: 'Lead Backend Architect — sole ownership of NestJS gateway, OpenAPI specs, and Docker Compose orchestration.',
-    githubUrl: 'https://github.com/kibrom-bit',
+    githubUrl: 'https://github.com/kibrom-bit/nexus-api-gateway',
+    liveUrl: 'https://nexus-gateway-api.onrender.com',
     apiEndpoint: {
       method: 'GET',
       path: '/api/v1/gateway/health',
@@ -228,7 +230,8 @@ export const projects: Project[] = [
       },
     ],
     role: 'Full-Stack Lead — React component architecture, Express REST layer, Socket.io integration, and MongoDB schema design.',
-    githubUrl: 'https://github.com/kibrom-bit',
+    githubUrl: 'https://github.com/kibrom-bit/collab-board',
+    liveUrl: 'https://collab-board.vercel.app',
     apiEndpoint: {
       method: 'POST',
       path: '/api/v1/boards/:boardId/tasks',
@@ -271,7 +274,8 @@ export const projects: Project[] = [
       },
     ],
     role: 'Sole Mobile Engineer — Flutter architecture, SQLite schema, Provider state management, biometric auth integration.',
-    githubUrl: 'https://github.com/kibrom-bit',
+    githubUrl: 'https://github.com/kibrom-bit/fintrack-mobile',
+    liveUrl: 'https://fintrack-mobile.web.app',
     accentColor: 'emerald',
   },
   {
@@ -300,7 +304,8 @@ export const projects: Project[] = [
       },
     ],
     role: 'Sole Engineer — ISR design, task stack frame layout, round-robin scheduler, and CMSIS integration.',
-    githubUrl: 'https://github.com/kibrom-bit',
+    githubUrl: 'https://github.com/kibrom-bit/arm-rtos-scheduler',
+    liveUrl: 'https://github.com/kibrom-bit/arm-rtos-scheduler',
     accentColor: 'amber',
   },
 ];

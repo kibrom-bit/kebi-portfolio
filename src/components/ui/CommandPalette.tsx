@@ -4,9 +4,10 @@ import { Command } from 'cmdk';
 import {
   Search, FileText, Layers, FolderGit2, Briefcase, Send,
   Link2, Copy, Check, ExternalLink, Terminal,
-  X, Hash, Sliders,
+  X, Hash, Sliders, Lock,
 } from 'lucide-react';
 import { usePortfolio } from '../../contexts/PortfolioContext';
+import { useAdmin } from '../../contexts/AdminContext';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface CommandPaletteProps {
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChange }) => {
   const { profile, openCustomizer } = usePortfolio();
+  const { isAdmin, isPreviewMode, openAuthModal } = useAdmin();
   const [copied, setCopied] = useState(false);
 
   const navigateTo = useCallback((hash: string) => {
@@ -120,11 +122,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
 
                 {/* Actions */}
                 <Command.Group heading="Actions">
-                  <Command.Item value="customize website studio settings" onSelect={handleOpenStudio}>
-                    <Sliders className="w-4 h-4 text-brand-primary" />
-                    <span>Customize Site (Theme, Background, Projects)</span>
-                    <span className="ml-auto text-[11px] text-brand-primary font-mono font-semibold">Studio</span>
-                  </Command.Item>
+                  {isAdmin && !isPreviewMode ? (
+                    <Command.Item value="customize website studio settings" onSelect={handleOpenStudio}>
+                      <Sliders className="w-4 h-4 text-brand-primary" />
+                      <span>Customize Site (Theme, Background, Projects)</span>
+                      <span className="ml-auto text-[11px] text-brand-primary font-mono font-semibold">Studio</span>
+                    </Command.Item>
+                  ) : (
+                    <Command.Item
+                      value="admin login studio portal authentication owner"
+                      onSelect={() => {
+                        onOpenChange(false);
+                        setTimeout(() => openAuthModal(), 100);
+                      }}
+                    >
+                      <Lock className="w-4 h-4 text-content-muted" />
+                      <span>Admin Studio Portal (Owner Login)</span>
+                      <span className="ml-auto text-[11px] text-content-muted font-mono">Owner</span>
+                    </Command.Item>
+                  )}
                   <Command.Item value="download resume" onSelect={downloadResume}>
                     <FileText className="w-4 h-4 text-brand-primary" />
                     <span>Download Resume (PDF)</span>

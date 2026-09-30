@@ -1,0 +1,137 @@
+{
+  "version": "2.0",
+  "publishedAt": "2026-09-30T12:00:00.000Z",
+  "profile": {
+    "name": "Kibrom Abebe",
+    "handle": "kebi",
+    "title": "Full-Stack Software Engineer",
+    "tagline": "Building resilient web applications, scalable backends, and modular systems — from ARM assembly to cloud-deployed microservices.",
+    "status": "Available for Full-Stack & Backend Roles",
+    "statusActive": true,
+    "location": "Mekelle, Ethiopia (UTC+3)",
+    "email": "kibromabebe20@gmail.com",
+    "github": "https://github.com/kibrom-bit",
+    "linkedin": "https://www.linkedin.com/in/kibrom-abebe-a99a63384",
+    "telegram": "https://t.me/mylordjesus3",
+    "resume": "/assets/Kibrom_Abebe_Resume.pdf",
+    "bio": "I'm a passionate Full-Stack Software Engineer and student leader at Mekelle University, Ethiopia. I architect end-to-end digital solutions — spanning React + Next.js frontends, NestJS/Express microservice backends, Flutter mobile apps, and even ARM Cortex-M3 embedded firmware. I lead teams, contribute to open source, and obsess over clean architecture, API-first design, and developer experience.",
+    "roles": [
+      "Full-Stack Software Engineer",
+      "API-First System Designer",
+      "Flutter Mobile Developer",
+      "ARM Embedded Engineer",
+      "Clean Architecture Advocate"
+    ],
+    "stats": [
+      { "value": "4+", "label": "Years Building" },
+      { "value": "10+", "label": "Projects Shipped" },
+      { "value": "5+", "label": "Tech Domains" },
+      { "value": "99.97%", "label": "API Uptime (Best)" }
+    ]
+  },
+  "themeConfig": {
+    "preset": "obsidian",
+    "accentColor": "#3b82f6",
+    "accentGlow": "rgba(59, 130, 246, 0.15)",
+    "bgApp": "#08090a",
+    "bgSurface": "#111316",
+    "bgSurfaceHover": "#181b20",
+    "borderSubtle": "#23272f",
+    "textPrimary": "#f3f4f6",
+    "textSecondary": "#9ca3af",
+    "bgPattern": "grid",
+    "glowIntensity": 0.8
+  },
+  "projects": [
+    {
+      "id": "nexus-api-gateway",
+      "title": "Nexus API Gateway",
+      "tagline": "High-throughput NestJS microservice gateway handling 10k+ concurrent sessions with sub-200ms p99 latency.",
+      "category": "backend",
+      "featured": true,
+      "timeline": "Jan 2025 – Jun 2025",
+      "techStack": ["NestJS", "Node.js", "PostgreSQL", "Prisma", "Docker", "Redis", "OpenAPI"],
+      "metrics": [
+        { "label": "API Uptime", "value": "99.97%", "description": "Measured over 6-month production window" },
+        { "label": "P99 Latency", "value": "<180ms", "description": "Under 10k concurrent sessions" },
+        { "label": "Endpoints", "value": "48+", "description": "Fully documented via OpenAPI 3.1" }
+      ],
+      "problemStatement": "A university IT system required a unified API layer to federate 6 independent legacy services — each with different auth models, data schemas, and rate limits — into a single, consistent REST interface consumable by a React SPA and a Flutter mobile client.",
+      "architectureDescription": "Client → NestJS Gateway (JWT Guard + Rate Limiter) → Service Router → [Auth Svc | Student Svc | Records Svc] → PostgreSQL / Redis Cache",
+      "tradeoffs": [
+        {
+          "decision": "Caching Strategy",
+          "chosen": "Redis read-through cache at gateway layer",
+          "rejected": "In-process LRU cache per service instance",
+          "rationale": "Redis provides a shared cache across horizontally scaled gateway replicas, whereas in-process LRU fragments under multi-instance deployments."
+        },
+        {
+          "decision": "ORM Choice",
+          "chosen": "Prisma ORM with type-safe migrations",
+          "rejected": "Raw SQL via pg driver",
+          "rationale": "Prisma migrations are declarative and version-controlled, reducing schema drift risk at the cost of minor query flexibility."
+        }
+      ],
+      "role": "Lead Backend Architect — sole ownership of NestJS gateway, OpenAPI specs, and Docker Compose orchestration.",
+      "githubUrl": "https://github.com/kibrom-bit/nexus-api-gateway",
+      "liveUrl": "https://nexus-gateway-api.onrender.com",
+      "apiEndpoint": {
+        "method": "GET",
+        "path": "/api/v1/gateway/health",
+        "description": "Cluster telemetry, DB pool status, and p99 latency metrics.",
+        "response": {
+          "status": "healthy",
+          "uptime": "99.97%",
+          "cluster": "prod-eth-01",
+          "activeConnections": 142,
+          "cache": { "provider": "Redis", "hitRate": "87.4%", "avgTtlSec": 300 },
+          "database": { "pool": "Prisma/PostgreSQL", "status": "healthy", "pingMs": 3.8 },
+          "p99Latency": "178ms"
+        }
+      },
+      "accentColor": "blue"
+    },
+    {
+      "id": "collab-board",
+      "title": "CollabBoard — Real-Time Task Platform",
+      "tagline": "Full-stack task management SaaS with Socket.io real-time sync, drag-and-drop boards, and team collaboration for 200+ concurrent users.",
+      "category": "fullstack",
+      "featured": true,
+      "timeline": "Aug 2024 – Dec 2024",
+      "techStack": ["Next.js 15", "React", "TypeScript", "Socket.io", "Express", "MongoDB", "Tailwind CSS"],
+      "metrics": [
+        { "label": "Concurrent Users", "value": "200+", "description": "WebSocket sessions under load test" },
+        { "label": "Event Lag", "value": "<50ms", "description": "Real-time board update broadcast latency" },
+        { "label": "Code Coverage", "value": "84%", "description": "Jest unit + integration test suite" }
+      ],
+      "problemStatement": "Student project teams at Mekelle University struggled to coordinate tasks across WhatsApp and Google Docs — neither of which offered a structured kanban workflow. The requirement was a real-time, multi-board task system with role-based access, file attachment, and mobile-responsive UI.",
+      "architectureDescription": "Next.js (SSR + Client) → Express REST API → MongoDB Atlas | Socket.io Event Bus → Connected Clients",
+      "tradeoffs": [
+        {
+          "decision": "State Sync Model",
+          "chosen": "Server-authoritative Socket.io event broadcasts",
+          "rejected": "Optimistic client-side CRDT updates",
+          "rationale": "Server-authoritative model is simpler to reason about and prevents split-brain scenarios, at the cost of one extra RTT per mutation."
+        }
+      ],
+      "role": "Full-Stack Lead — React component architecture, Express REST layer, Socket.io integration, and MongoDB schema design.",
+      "githubUrl": "https://github.com/kibrom-bit/collab-board",
+      "liveUrl": "https://collab-board.vercel.app",
+      "apiEndpoint": {
+        "method": "POST",
+        "path": "/api/v1/boards/:boardId/tasks",
+        "description": "Creates a new task and broadcasts the event to all board subscribers.",
+        "response": {
+          "id": "tsk_7fa3bc12",
+          "title": "Design API schema for Sprint 4",
+          "status": "todo",
+          "boardId": "brd_99de44",
+          "assignee": { "name": "Kibrom Abebe", "handle": "@kibrom-bit" },
+          "createdAt": "2025-01-15T09:32:00Z",
+          "broadcastedTo": 8
+        }
+      },
+      "accentColor": "violet"
+    }
+  ]
+}

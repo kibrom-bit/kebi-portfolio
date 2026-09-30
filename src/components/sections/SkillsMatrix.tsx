@@ -3,35 +3,65 @@ import { motion } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { skillCategories } from '../../data/portfolioData';
-import { Monitor, Server, Database, Cpu, GitBranch } from 'lucide-react';
+import { Monitor, Server, Database, Cpu, GitBranch, Layers, Sparkles } from 'lucide-react';
 
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
   Monitor, Server, Database, Cpu, GitBranch,
 };
 
-const colorMap: Record<string, { accent: string; bar: string; tagBg: string; tagText: string }> = {
-  blue:    { accent: 'text-blue-400',   bar: 'bg-blue-500',   tagBg: 'bg-blue-500/10',   tagText: 'text-blue-400' },
-  violet:  { accent: 'text-violet-400', bar: 'bg-violet-500', tagBg: 'bg-violet-500/10', tagText: 'text-violet-400' },
-  emerald: { accent: 'text-emerald-400',bar: 'bg-emerald-500',tagBg: 'bg-emerald-500/10',tagText: 'text-emerald-400' },
-  amber:   { accent: 'text-amber-400',  bar: 'bg-amber-500',  tagBg: 'bg-amber-500/10',  tagText: 'text-amber-400' },
-  rose:    { accent: 'text-rose-400',   bar: 'bg-rose-500',   tagBg: 'bg-rose-500/10',   tagText: 'text-rose-400' },
+const categoryBadgeStyle: Record<string, { border: string; bg: string; text: string; glow: string }> = {
+  blue: {
+    border: 'border-blue-500/30 hover:border-blue-500/60',
+    bg: 'bg-blue-500/10 group-hover:bg-blue-500/15',
+    text: 'text-blue-400',
+    glow: 'group-hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]',
+  },
+  violet: {
+    border: 'border-violet-500/30 hover:border-violet-500/60',
+    bg: 'bg-violet-500/10 group-hover:bg-violet-500/15',
+    text: 'text-violet-400',
+    glow: 'group-hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]',
+  },
+  emerald: {
+    border: 'border-emerald-500/30 hover:border-emerald-500/60',
+    bg: 'bg-emerald-500/10 group-hover:bg-emerald-500/15',
+    text: 'text-emerald-400',
+    glow: 'group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+  },
+  amber: {
+    border: 'border-amber-500/30 hover:border-amber-500/60',
+    bg: 'bg-amber-500/10 group-hover:bg-amber-500/15',
+    text: 'text-amber-400',
+    glow: 'group-hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+  },
+  rose: {
+    border: 'border-rose-500/30 hover:border-rose-500/60',
+    bg: 'bg-rose-500/10 group-hover:bg-rose-500/15',
+    text: 'text-rose-400',
+    glow: 'group-hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+  },
 };
 
 const SkillsMatrix: React.FC = () => {
   const { setActiveSection } = useApp();
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [activeCategory, setActiveCategory] = useState(skillCategories[0].id);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
 
   useEffect(() => {
     if (isIntersecting) setActiveSection('skills');
   }, [isIntersecting, setActiveSection]);
 
-  const active = skillCategories.find((c) => c.id === activeCategory) ?? skillCategories[0];
-  const colors = colorMap[active.color] ?? colorMap.blue;
-  const Icon = iconMap[active.icon];
+  // Aggregate all skills if 'all' is selected, or pick the active category
+  const displayedSkills = activeCategory === 'all'
+    ? skillCategories.flatMap((cat) => cat.skills.map((s) => ({ ...s, categoryColor: cat.color, categoryLabel: cat.label })))
+    : (skillCategories.find((c) => c.id === activeCategory)?.skills.map((s) => ({
+        ...s,
+        categoryColor: skillCategories.find((c) => c.id === activeCategory)?.color || 'blue',
+        categoryLabel: skillCategories.find((c) => c.id === activeCategory)?.label || '',
+      })) || []);
 
   return (
-    <section id="skills" ref={ref} className="section-wrapper dark:bg-surface/30 bg-gray-50/60">
+    <section id="skills" ref={ref} className="section-wrapper bg-transparent">
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -42,108 +72,93 @@ const SkillsMatrix: React.FC = () => {
         >
           <p className="section-tag">
             <span className="w-4 h-px bg-brand-primary" />
-            Technical Skills
+            Technical Stack
           </p>
           <h2 className="section-title">
-            Skills <span className="text-gradient-brand">Matrix</span>
+            Skills & <span className="text-gradient-brand">Technologies</span>
           </h2>
           <p className="section-subtitle max-w-xl">
-            A categorized taxonomy of my technical stack — from pixel-perfect UIs to bare-metal embedded firmware.
+            A comprehensive overview of languages, frameworks, and system engineering tools I utilize in production.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
-          {/* Category selector */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col gap-2"
+        {/* Category Filter Tabs - Simple & Modern Devpost Style */}
+        <div className="flex flex-wrap items-center gap-2 mb-10 pb-2 border-b border-border-subtle">
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all duration-200 ${
+              activeCategory === 'all'
+                ? 'bg-brand-primary text-white shadow-sm'
+                : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+            }`}
           >
-            {skillCategories.map((cat) => {
-              const CatIcon = iconMap[cat.icon];
-              const catColors = colorMap[cat.color] ?? colorMap.blue;
-              const isActive = cat.id === activeCategory;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all duration-200 ${
-                    isActive
-                      ? `border-brand-primary/40 bg-brand-primary/8 ${catColors.accent}`
-                      : 'border-border-subtle bg-surface hover:bg-surface-hover text-content-secondary hover:text-content-primary'
-                  }`}
-                >
-                  {CatIcon && (
-                    <CatIcon className={`w-4 h-4 shrink-0 ${isActive ? catColors.accent : ''}`} />
-                  )}
-                  <span className="font-medium text-sm">{cat.label}</span>
-                  {isActive && (
-                    <span className="ml-auto text-xs font-mono text-content-muted">{cat.skills.length}</span>
-                  )}
-                </button>
-              );
-            })}
-          </motion.div>
+            <Layers className="w-3.5 h-3.5" />
+            <span>All Technologies</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20">
+              {skillCategories.reduce((acc, cat) => acc + cat.skills.length, 0)}
+            </span>
+          </button>
 
-          {/* Skills panel */}
-          <motion.div
-            key={activeCategory}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="dark:bg-surface bg-white rounded-2xl border border-border-subtle p-6 shadow-sm"
-          >
-            {/* Panel header */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors.tagBg} border border-current/20`}>
-                {Icon && <Icon className={`w-5 h-5 ${colors.accent}`} />}
-              </div>
-              <div>
-                <h3 className="font-display font-semibold text-content-primary">{active.label}</h3>
-                <p className="text-xs text-content-muted font-mono">{active.skills.length} technologies</p>
-              </div>
-            </div>
-
-            {/* Skill bars */}
-            <div className="space-y-5">
-              {active.skills.map((skill, idx) => (
-                <motion.div
-                  key={skill.name}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: idx * 0.06 }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-content-primary">{skill.name}</span>
-                    <span className={`text-xs font-mono ${colors.accent}`}>{skill.level}%</span>
-                  </div>
-                  <div className="h-1.5 bg-surface-subtle rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full ${colors.bar} rounded-full`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${skill.level}%` }}
-                      transition={{ duration: 0.7, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-border-subtle">
-              {active.skills.map((s) => (
-                <span
-                  key={s.name}
-                  className={`px-2.5 py-1 rounded-badge text-xs font-mono ${colors.tagBg} ${colors.tagText} border border-current/20`}
-                >
-                  {s.name}
+          {skillCategories.map((cat) => {
+            const CatIcon = iconMap[cat.icon];
+            const isActive = cat.id === activeCategory;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all duration-200 ${
+                  isActive
+                    ? 'bg-brand-primary text-white shadow-sm'
+                    : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+                }`}
+              >
+                {CatIcon && <CatIcon className="w-3.5 h-3.5 shrink-0" />}
+                <span>{cat.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white/20' : 'bg-surface-subtle text-content-muted'}`}>
+                  {cat.skills.length}
                 </span>
-              ))}
-            </div>
-          </motion.div>
+              </button>
+            );
+          })}
         </div>
+
+        {/* Clean Tech Cards Grid - No boring progress lines */}
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5"
+        >
+          {displayedSkills.map((skill, idx) => {
+            const style = categoryBadgeStyle[skill.categoryColor] || categoryBadgeStyle.blue;
+            return (
+              <motion.div
+                key={skill.name}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.3) }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className={`group relative p-4 rounded-2xl border ${style.border} bg-surface transition-all duration-200 cursor-default ${style.glow}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="font-semibold text-sm text-content-primary tracking-tight">
+                    {skill.name}
+                  </span>
+                  <Sparkles className={`w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity ${style.text}`} />
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-2 border-t border-border-subtle/50 text-[11px] font-mono">
+                  <span className={`px-2 py-0.5 rounded-md ${style.bg} ${style.text} text-[10px]`}>
+                    {skill.categoryLabel || 'Stack'}
+                  </span>
+                  <span className="text-content-muted text-[10px]">
+                    Production
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

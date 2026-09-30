@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
+import { useAdmin } from '../../contexts/AdminContext';
 import { useScrollPosition } from '../../hooks';
 import { CommandPalette } from '../ui/CommandPalette';
-import { Moon, Sun, Download, Search, Sliders } from 'lucide-react';
+import { Download, Sliders } from 'lucide-react';
 
 const navItems = [
   { id: 'hero', label: 'Home' },
@@ -17,6 +18,7 @@ const navItems = [
 const Header: React.FC = () => {
   const { theme, toggleTheme, activeSection, setActiveSection, isMenuOpen, toggleMenu } = useApp();
   const { profile, openCustomizer } = usePortfolio();
+  const { isAdmin, isPreviewMode } = useAdmin();
   const scrollPosition = useScrollPosition();
   const [isScrolled, setIsScrolled] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -94,55 +96,32 @@ const Header: React.FC = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2">
-              {/* Studio Customize button */}
-              <button
-                onClick={openCustomizer}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
-                           text-brand-primary bg-brand-primary/10 border border-brand-primary/30
-                           hover:bg-brand-primary/20 active:scale-95 transition-all duration-200"
-                title="Customize Background, Projects & Profile directly"
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                <span>Customize</span>
-              </button>
-
-              {/* Cmd+K trigger */}
-              <button
-                onClick={() => setCmdOpen(true)}
-                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono
-                           text-content-muted bg-surface-subtle border border-border-subtle
-                           hover:border-brand-primary hover:text-content-primary transition-all duration-200"
-                title="Open command palette (Ctrl+K / ⌘K)"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>Search</span>
-                <kbd className="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-border-subtle">⌘K</kbd>
-              </button>
+            <div className="flex items-center gap-2.5">
+              {/* Studio Customize button - Only shown for Admin */}
+              {isAdmin && !isPreviewMode && (
+                <button
+                  onClick={openCustomizer}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
+                             text-brand-primary bg-brand-primary/10 border border-brand-primary/30
+                             hover:bg-brand-primary/20 active:scale-95 transition-all duration-200"
+                  title="Customize Background, Projects & Profile directly"
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Customize</span>
+                </button>
+              )}
 
               {/* Resume download */}
               <a
                 href={profile.resume}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-button text-xs font-semibold
-                           bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all duration-200"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-button text-xs font-semibold
+                           bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all duration-200 shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
-                Resume
+                <span>Resume</span>
               </a>
-
-              {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 rounded-lg bg-surface-subtle border border-border-subtle
-                           hover:bg-surface-hover text-content-secondary hover:text-content-primary transition-all duration-200"
-                aria-label="Toggle dark mode"
-              >
-                {theme === 'dark'
-                  ? <Sun className="w-4 h-4" />
-                  : <Moon className="w-4 h-4" />}
-              </button>
 
               {/* Mobile hamburger */}
               <button
@@ -176,16 +155,18 @@ const Header: React.FC = () => {
                 </button>
               ))}
               <div className="px-3 pt-2 pb-1 border-t border-border-subtle mt-1 flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    openCustomizer();
-                    if (isMenuOpen) toggleMenu();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-brand-primary/15 text-brand-primary border border-brand-primary/30"
-                >
-                  <Sliders className="w-3.5 h-3.5" />
-                  Customize Site (Studio)
-                </button>
+                {isAdmin && !isPreviewMode && (
+                  <button
+                    onClick={() => {
+                      openCustomizer();
+                      if (isMenuOpen) toggleMenu();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-brand-primary/15 text-brand-primary border border-brand-primary/30"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    Customize Site (Studio)
+                  </button>
+                )}
                 <a
                   href={profile.resume}
                   target="_blank"
