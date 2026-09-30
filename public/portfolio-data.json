@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "publishedAt": "2026-09-30T12:00:00.000Z",
+  "publishedAt": "2026-09-30T15:28:24.055Z",
   "profile": {
     "name": "Kibrom Abebe",
     "handle": "kebi",
@@ -15,6 +15,44 @@
     "telegram": "https://t.me/mylordjesus3",
     "resume": "/assets/Kibrom_Abebe_Resume.pdf",
     "bio": "I'm a passionate Full-Stack Software Engineer and student leader at Mekelle University, Ethiopia. I architect end-to-end digital solutions — spanning React + Next.js frontends, NestJS/Express microservice backends, Flutter mobile apps, and even ARM Cortex-M3 embedded firmware. I lead teams, contribute to open source, and obsess over clean architecture, API-first design, and developer experience.",
+    "philosophyPrinciples": [
+      {
+        "id": "architecture",
+        "icon": "Layers",
+        "title": "Clean Architecture & Scalable Systems",
+        "color": "blue",
+        "description": "I treat architecture as a first-class citizen — separating concerns, inverting dependencies, and ensuring systems remain testable and evolvable as they grow.",
+        "points": [
+          "Domain-driven design & bounded contexts",
+          "Dependency inversion & interface segregation",
+          "Hexagonal / Ports-and-Adapters pattern"
+        ]
+      },
+      {
+        "id": "api",
+        "icon": "Code2",
+        "title": "API-First Design",
+        "color": "violet",
+        "description": "Contracts before code. Every backend service I build starts with an OpenAPI spec, enabling parallel frontend/backend development and living documentation.",
+        "points": [
+          "OpenAPI / Swagger contract-first specs",
+          "RESTful conventions + semantic versioning",
+          "Consistent error envelopes & hypermedia"
+        ]
+      },
+      {
+        "id": "performance",
+        "icon": "Zap",
+        "title": "Performance & Accessibility",
+        "color": "emerald",
+        "description": "Speed and inclusivity are non-negotiable. I optimize for Core Web Vitals, instrument with tracing tools, and build UIs that work for every user.",
+        "points": [
+          "Core Web Vitals — LCP < 2.5s, CLS < 0.1",
+          "WCAG 2.1 AA semantic HTML",
+          "Bundle analysis & lazy-loading strategies"
+        ]
+      }
+    ],
     "roles": [
       "Full-Stack Software Engineer",
       "API-First System Designer",
@@ -23,22 +61,34 @@
       "Clean Architecture Advocate"
     ],
     "stats": [
-      { "value": "4+", "label": "Years Building" },
-      { "value": "10+", "label": "Projects Shipped" },
-      { "value": "5+", "label": "Tech Domains" },
-      { "value": "99.97%", "label": "API Uptime (Best)" }
+      {
+        "value": "4+",
+        "label": "Years Building"
+      },
+      {
+        "value": "10+",
+        "label": "Projects Shipped"
+      },
+      {
+        "value": "5+",
+        "label": "Tech Domains"
+      },
+      {
+        "value": "99.97%",
+        "label": "API Uptime (Best)"
+      }
     ]
   },
   "themeConfig": {
-    "preset": "obsidian",
-    "accentColor": "#3b82f6",
-    "accentGlow": "rgba(59, 130, 246, 0.15)",
-    "bgApp": "#08090a",
-    "bgSurface": "#111316",
-    "bgSurfaceHover": "#181b20",
-    "borderSubtle": "#23272f",
-    "textPrimary": "#f3f4f6",
-    "textSecondary": "#9ca3af",
+    "preset": "light",
+    "accentColor": "#f59e0b",
+    "accentGlow": "rgba(245, 158, 11, 0.16)",
+    "bgApp": "#ffffff",
+    "bgSurface": "#f8fafc",
+    "bgSurfaceHover": "#f1f5f9",
+    "borderSubtle": "#e2e8f0",
+    "textPrimary": "#0f172a",
+    "textSecondary": "#475569",
     "bgPattern": "grid",
     "glowIntensity": 0.8
   },
@@ -50,11 +100,31 @@
       "category": "backend",
       "featured": true,
       "timeline": "Jan 2025 – Jun 2025",
-      "techStack": ["NestJS", "Node.js", "PostgreSQL", "Prisma", "Docker", "Redis", "OpenAPI"],
+      "techStack": [
+        "NestJS",
+        "Node.js",
+        "PostgreSQL",
+        "Prisma",
+        "Docker",
+        "Redis",
+        "OpenAPI"
+      ],
       "metrics": [
-        { "label": "API Uptime", "value": "99.97%", "description": "Measured over 6-month production window" },
-        { "label": "P99 Latency", "value": "<180ms", "description": "Under 10k concurrent sessions" },
-        { "label": "Endpoints", "value": "48+", "description": "Fully documented via OpenAPI 3.1" }
+        {
+          "label": "API Uptime",
+          "value": "99.97%",
+          "description": "Measured over 6-month production window"
+        },
+        {
+          "label": "P99 Latency",
+          "value": "<180ms",
+          "description": "Under 10k concurrent sessions"
+        },
+        {
+          "label": "Endpoints",
+          "value": "48+",
+          "description": "Fully documented via OpenAPI 3.1"
+        }
       ],
       "problemStatement": "A university IT system required a unified API layer to federate 6 independent legacy services — each with different auth models, data schemas, and rate limits — into a single, consistent REST interface consumable by a React SPA and a Flutter mobile client.",
       "architectureDescription": "Client → NestJS Gateway (JWT Guard + Rate Limiter) → Service Router → [Auth Svc | Student Svc | Records Svc] → PostgreSQL / Redis Cache",
@@ -84,8 +154,16 @@
           "uptime": "99.97%",
           "cluster": "prod-eth-01",
           "activeConnections": 142,
-          "cache": { "provider": "Redis", "hitRate": "87.4%", "avgTtlSec": 300 },
-          "database": { "pool": "Prisma/PostgreSQL", "status": "healthy", "pingMs": 3.8 },
+          "cache": {
+            "provider": "Redis",
+            "hitRate": "87.4%",
+            "avgTtlSec": 300
+          },
+          "database": {
+            "pool": "Prisma/PostgreSQL",
+            "status": "healthy",
+            "pingMs": 3.8
+          },
           "p99Latency": "178ms"
         }
       },
@@ -98,11 +176,31 @@
       "category": "fullstack",
       "featured": true,
       "timeline": "Aug 2024 – Dec 2024",
-      "techStack": ["Next.js 15", "React", "TypeScript", "Socket.io", "Express", "MongoDB", "Tailwind CSS"],
+      "techStack": [
+        "Next.js 15",
+        "React",
+        "TypeScript",
+        "Socket.io",
+        "Express",
+        "MongoDB",
+        "Tailwind CSS"
+      ],
       "metrics": [
-        { "label": "Concurrent Users", "value": "200+", "description": "WebSocket sessions under load test" },
-        { "label": "Event Lag", "value": "<50ms", "description": "Real-time board update broadcast latency" },
-        { "label": "Code Coverage", "value": "84%", "description": "Jest unit + integration test suite" }
+        {
+          "label": "Concurrent Users",
+          "value": "200+",
+          "description": "WebSocket sessions under load test"
+        },
+        {
+          "label": "Event Lag",
+          "value": "<50ms",
+          "description": "Real-time board update broadcast latency"
+        },
+        {
+          "label": "Code Coverage",
+          "value": "84%",
+          "description": "Jest unit + integration test suite"
+        }
       ],
       "problemStatement": "Student project teams at Mekelle University struggled to coordinate tasks across WhatsApp and Google Docs — neither of which offered a structured kanban workflow. The requirement was a real-time, multi-board task system with role-based access, file attachment, and mobile-responsive UI.",
       "architectureDescription": "Next.js (SSR + Client) → Express REST API → MongoDB Atlas | Socket.io Event Bus → Connected Clients",
@@ -126,7 +224,10 @@
           "title": "Design API schema for Sprint 4",
           "status": "todo",
           "boardId": "brd_99de44",
-          "assignee": { "name": "Kibrom Abebe", "handle": "@kibrom-bit" },
+          "assignee": {
+            "name": "Kibrom Abebe",
+            "handle": "@kibrom-bit"
+          },
           "createdAt": "2025-01-15T09:32:00Z",
           "broadcastedTo": 8
         }
