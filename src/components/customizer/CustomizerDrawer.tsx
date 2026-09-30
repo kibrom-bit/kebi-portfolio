@@ -37,13 +37,12 @@ import {
 type Tab = 'theme' | 'profile' | 'projects' | 'contact' | 'publish';
 
 export const CustomizerDrawer: React.FC = () => {
-  const { isAdmin, isPreviewMode, changePasskey } = useAdmin();
+  const { isAdmin, changePasskey } = useAdmin();
   const {
     profile,
     projects,
     themeConfig,
     isCustomizerOpen,
-    openCustomizer,
     closeCustomizer,
     updateProfile,
     updateThemeConfig,
@@ -197,12 +196,12 @@ export const CustomizerDrawer: React.FC = () => {
 
     const savedMetrics = (projectForm.metrics && projectForm.metrics.length > 0)
       ? projectForm.metrics
-          .filter((m) => m.label.trim() || m.value.trim())
-          .map((m) => ({
-            label: m.label.trim() || 'Impact',
-            value: m.value.trim() || '10x',
-            description: m.description?.trim() || 'Performance improvement',
-          }))
+        .filter((m) => m.label.trim() || m.value.trim())
+        .map((m) => ({
+          label: m.label.trim() || 'Impact',
+          value: m.value.trim() || '10x',
+          description: m.description?.trim() || 'Performance improvement',
+        }))
       : [{ label: 'Impact', value: '10x', description: 'Performance improvement' }];
 
     const completeProject: Project = {
@@ -446,11 +445,10 @@ export const CustomizerDrawer: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as Tab)}
-                      className={`flex items-center gap-2 px-3 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-200 ${
-                        isActive
+                      className={`flex items-center gap-2 px-3 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-200 ${isActive
                           ? 'border-brand-primary text-brand-primary'
                           : 'border-transparent text-content-muted hover:text-content-primary'
-                      }`}
+                        }`}
                     >
                       <Icon className={`w-4 h-4 ${isPublish && hasUnpublishedChanges ? 'text-amber-400 animate-pulse' : ''}`} />
                       {tab.label}
@@ -488,11 +486,10 @@ export const CustomizerDrawer: React.FC = () => {
                               setThemePreset(preset.id as ThemePreset);
                               showToast(`Applied ${preset.name} theme`);
                             }}
-                            className={`p-3 text-left rounded-xl border transition-all ${
-                              themeConfig.preset === preset.id
+                            className={`p-3 text-left rounded-xl border transition-all ${themeConfig.preset === preset.id
                                 ? 'border-brand-primary bg-brand-primary/10 shadow-sm ring-1 ring-brand-primary/50'
                                 : 'border-border-subtle bg-surface-subtle hover:border-content-muted'
-                            }`}
+                              }`}
                           >
                             <div className="text-xs font-semibold">{preset.name}</div>
                             <div className="text-[10px] text-content-muted mt-0.5">{preset.desc}</div>
@@ -514,11 +511,10 @@ export const CustomizerDrawer: React.FC = () => {
                               setAccentColor({ hex: swatch.hex, glow: swatch.glow });
                               showToast(`Accent set to ${swatch.name}`);
                             }}
-                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${
-                              themeConfig.accentColor.toLowerCase() === swatch.hex.toLowerCase()
+                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${themeConfig.accentColor.toLowerCase() === swatch.hex.toLowerCase()
                                 ? 'border-brand-primary ring-2 ring-brand-primary/40 bg-surface-hover'
                                 : 'border-border-subtle hover:border-content-muted'
-                            }`}
+                              }`}
                           >
                             <span
                               className="w-7 h-7 rounded-full shadow-inner flex items-center justify-center text-white"
@@ -576,11 +572,10 @@ export const CustomizerDrawer: React.FC = () => {
                               updateThemeConfig({ bgPattern: pat.id as BackgroundPattern });
                               showToast(`Pattern set to ${pat.label}`);
                             }}
-                            className={`p-2.5 text-center text-xs font-semibold rounded-xl border transition-all ${
-                              themeConfig.bgPattern === pat.id
+                            className={`p-2.5 text-center text-xs font-semibold rounded-xl border transition-all ${themeConfig.bgPattern === pat.id
                                 ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
                                 : 'border-border-subtle text-content-secondary hover:border-content-muted'
-                            }`}
+                              }`}
                           >
                             {pat.label}
                           </button>
@@ -650,11 +645,10 @@ export const CustomizerDrawer: React.FC = () => {
                         <label className="text-xs font-mono font-bold text-content-primary">Availability Badge</label>
                         <button
                           onClick={() => updateProfile({ statusActive: !profile.statusActive })}
-                          className={`px-2.5 py-1 text-xs font-mono rounded-full border transition-colors ${
-                            profile.statusActive
+                          className={`px-2.5 py-1 text-xs font-mono rounded-full border transition-colors ${profile.statusActive
                               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                               : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
-                          }`}
+                            }`}
                         >
                           {profile.statusActive ? '● Status Active' : '○ Status Hidden'}
                         </button>
@@ -893,11 +887,10 @@ export const CustomizerDrawer: React.FC = () => {
                 {activeTab === 'publish' && (
                   <div className="space-y-5 text-xs">
                     {/* Status Overview Card */}
-                    <div className={`p-4 rounded-xl border ${
-                      hasUnpublishedChanges
+                    <div className={`p-4 rounded-xl border ${hasUnpublishedChanges
                         ? 'border-amber-500/30 bg-amber-500/5'
                         : 'border-emerald-500/30 bg-emerald-500/5'
-                    }`}>
+                      }`}>
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2.5">
                           {hasUnpublishedChanges ? (
@@ -915,8 +908,8 @@ export const CustomizerDrawer: React.FC = () => {
                               {hasUnpublishedChanges
                                 ? 'You have draft customizations that have not been locked into release.'
                                 : lastPublishedAt
-                                ? `Last published: ${new Date(lastPublishedAt).toLocaleString()}`
-                                : 'Using verified production blueprint defaults.'}
+                                  ? `Last published: ${new Date(lastPublishedAt).toLocaleString()}`
+                                  : 'Using verified production blueprint defaults.'}
                             </div>
                           </div>
                         </div>
@@ -1068,11 +1061,10 @@ export const CustomizerDrawer: React.FC = () => {
 
                         {githubSyncResult && (
                           <div
-                            className={`p-2.5 rounded-lg text-xs font-mono ${
-                              githubSyncResult.success
+                            className={`p-2.5 rounded-lg text-xs font-mono ${githubSyncResult.success
                                 ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
                                 : 'bg-red-500/10 border border-red-500/30 text-red-400'
-                            }`}
+                              }`}
                           >
                             {githubSyncResult.msg}
                           </div>
@@ -1125,11 +1117,10 @@ export const CustomizerDrawer: React.FC = () => {
                         />
 
                         {passkeyChangeMsg && (
-                          <div className={`p-2.5 rounded-lg text-xs font-mono ${
-                            passkeyChangeMsg.type === 'success'
+                          <div className={`p-2.5 rounded-lg text-xs font-mono ${passkeyChangeMsg.type === 'success'
                               ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
                               : 'bg-red-500/10 border border-red-500/30 text-red-400'
-                          }`}>
+                            }`}>
                             {passkeyChangeMsg.text}
                           </div>
                         )}

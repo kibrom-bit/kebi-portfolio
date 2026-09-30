@@ -16,7 +16,7 @@ const navItems = [
 ];
 
 const Header: React.FC = () => {
-  const { theme, toggleTheme, activeSection, setActiveSection, isMenuOpen, toggleMenu } = useApp();
+  const { activeSection, setActiveSection, isMenuOpen, toggleMenu } = useApp();
   const { profile, openCustomizer } = usePortfolio();
   const { isAdmin, isPreviewMode } = useAdmin();
   const scrollPosition = useScrollPosition();
@@ -51,11 +51,10 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
             ? 'dark:bg-surface/90 bg-white/90 backdrop-blur-xl border-b border-border-subtle shadow-sm shadow-black/10'
             : 'bg-transparent'
-        }`}
+          }`}
       >
         <nav className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -81,11 +80,10 @@ const Header: React.FC = () => {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    activeSection === item.id
+                  className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${activeSection === item.id
                       ? 'text-brand-primary bg-brand-primary/10'
                       : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-                  }`}
+                    }`}
                 >
                   {item.label}
                   {activeSection === item.id && (
@@ -145,11 +143,10 @@ const Header: React.FC = () => {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 ${
-                    activeSection === item.id
+                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 ${activeSection === item.id
                       ? 'text-brand-primary bg-brand-primary/10'
                       : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </button>
