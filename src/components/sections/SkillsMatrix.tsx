@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { skillCategories } from '../../data/portfolioData';
-import { Monitor, Server, Database, Cpu, GitBranch, Layers, Sparkles } from 'lucide-react';
-
+import { Monitor, Server, Database, Cpu, GitBranch, Layers } from 'lucide-react';
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
   Monitor, Server, Database, Cpu, GitBranch,
 };
