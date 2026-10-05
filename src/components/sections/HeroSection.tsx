@@ -1,18 +1,12 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
 import { useIntersectionObserver } from '../../hooks';
 import kebiImg from '../../sections/kebi.png';
 import { MapPin, Mail, CheckCircle2, Terminal } from 'lucide-react';
+import { SectionReveal } from '../ui/SectionReveal';
 
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay },
-});
-
-// Crisp brand SVGs for developer profile links
+// Crisp brand SVGs
 const GithubIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -31,56 +25,46 @@ const TelegramIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+/** Cycles through roles with a smooth fade-swap — no typewriter */
+const RoleCycler: React.FC<{ roles: string[] }> = ({ roles }) => {
+  const [idx, setIdx] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    if (roles.length <= 1) return;
+    const interval = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setIdx((i) => (i + 1) % roles.length);
+        setFading(false);
+      }, 400);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, [roles.length]);
+
+  return (
+    <span
+      className="transition-opacity duration-400 ease-in-out text-brand-primary font-mono"
+      style={{ opacity: fading ? 0 : 1 }}
+    >
+      {roles[idx]}
+    </span>
+  );
+};
+
 const HeroSection: React.FC = () => {
   const { setActiveSection } = useApp();
   const { profile } = usePortfolio();
   const { ref, isIntersecting } = useIntersectionObserver();
-  const [roleIdx, setRoleIdx] = useState(0);
-  const [displayText, setDisplayText] = useState('');
-  const [charIdx, setCharIdx] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const roles = useMemo(
-    () => (profile.roles && profile.roles.length > 0 ? profile.roles : ['Full-Stack Software Engineer']),
-    [profile.roles]
-  );
+  const roles =
+    profile.roles && profile.roles.length > 0
+      ? profile.roles
+      : ['Full-Stack Software Engineer'];
 
   useEffect(() => {
     if (isIntersecting) setActiveSection('hero');
   }, [isIntersecting, setActiveSection]);
-
-  // Reset role index if roles change
-  useEffect(() => {
-    setRoleIdx(0);
-    setCharIdx(0);
-    setIsDeleting(false);
-  }, [roles.length]);
-
-  // Typewriter effect
-  useEffect(() => {
-    const current = roles[roleIdx % roles.length];
-    const delay = isDeleting ? 35 : 60;
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayText(current.slice(0, charIdx + 1));
-        if (charIdx + 1 === current.length) {
-          setTimeout(() => setIsDeleting(true), 2000);
-        } else {
-          setCharIdx((c) => c + 1);
-        }
-      } else {
-        setDisplayText(current.slice(0, charIdx - 1));
-        if (charIdx - 1 <= 0) {
-          setIsDeleting(false);
-          setRoleIdx((i) => (i + 1) % roles.length);
-          setCharIdx(0);
-        } else {
-          setCharIdx((c) => c - 1);
-        }
-      }
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [charIdx, isDeleting, roleIdx, roles]);
 
   return (
     <section
@@ -90,119 +74,116 @@ const HeroSection: React.FC = () => {
     >
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
-          {/* Devpost-style Developer Profile Showcase */}
           <div className="grid md:grid-cols-[240px_1fr] gap-8 md:gap-12 items-center">
-            
+
             {/* Profile Avatar Column */}
-            <motion.div
-              {...fadeUp(0.1)}
-              className="flex flex-col items-center md:items-start text-center md:text-left"
-            >
-              <div className="relative group">
-                {/* Glow ring */}
-                <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-brand-primary via-brand-accent to-purple-600 opacity-60 blur-md group-hover:opacity-90 transition duration-500" />
-                
-                {/* Avatar image container */}
-                <div className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden border-2 border-brand-primary/60 bg-surface shadow-2xl">
-                  <img
-                    src={kebiImg}
-                    alt={profile.name}
-                    className="w-full h-full object-cover object-top filter brightness-[1.02] contrast-[1.03] transition-transform duration-500 group-hover:scale-105"
-                  />
+            <SectionReveal variant="glide" delay={0}>
+              <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                <div className="relative">
+                  {/* Clean avatar — no glow ring */}
+                  <div className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden border-2 border-border-subtle bg-surface shadow-2xl">
+                    <img
+                      src={kebiImg}
+                      alt={profile.name}
+                      className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+
+                  {/* Verified badge */}
+                  <div
+                    className="absolute bottom-2 right-2 p-1.5 rounded-full bg-brand-primary text-white border-2 border-surface shadow-lg"
+                    title="Verified Developer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
                 </div>
 
-                {/* Verified badge */}
-                <div
-                  className="absolute bottom-2 right-2 p-1.5 rounded-full bg-brand-primary text-white border-2 border-surface shadow-lg"
-                  title="Verified Developer"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
+                {/* Handle & Location */}
+                <div className="mt-4 space-y-1.5">
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-content-muted font-mono text-xs">
+                    <Terminal className="w-3.5 h-3.5 text-brand-primary" />
+                    <span>@{profile.handle || 'kebi'}</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 text-content-secondary text-xs">
+                    <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                    <span>{profile.location || 'Mekelle, Ethiopia'}</span>
+                  </div>
                 </div>
               </div>
-
-              {/* Devpost-style Handle & Location */}
-              <div className="mt-4 space-y-1.5">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 text-content-muted font-mono text-xs">
-                  <Terminal className="w-3.5 h-3.5 text-brand-primary" />
-                  <span>@{profile.handle || 'kebi'}</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start gap-1.5 text-content-secondary text-xs">
-                  <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                  <span>{profile.location || 'Mekelle, Ethiopia'}</span>
-                </div>
-              </div>
-            </motion.div>
+            </SectionReveal>
 
             {/* Profile Details Column */}
-            <motion.div {...fadeUp(0.2)} className="text-center md:text-left">
-              {/* Main Heading */}
-              <h1 className="font-display font-extrabold tracking-tight leading-tight mb-3">
-                <span className="block text-4xl sm:text-5xl lg:text-6xl text-content-primary">
-                  Hi, I'm{' '}
-                  <span className="text-gradient-brand animate-gradient-text">{profile.name}</span>
-                </span>
-              </h1>
+            <SectionReveal variant="rise" delay={120}>
+              <div className="text-center md:text-left">
+                {/* Main Heading — single color, no gradient */}
+                <h1 className="font-display font-extrabold tracking-tight leading-tight mb-3">
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-content-primary">
+                    Hi, I'm{' '}
+                    <span className="text-brand-primary">{profile.name}</span>
+                  </span>
+                </h1>
 
-              {/* Animated Role */}
-              <div className="text-xl sm:text-2xl text-content-secondary font-medium mb-5 min-h-[36px] flex items-center justify-center md:justify-start">
-                <span className="text-brand-accent font-mono">{displayText}</span>
-                <span className="inline-block w-0.5 h-6 bg-brand-accent ml-1 animate-blink-caret" />
+                {/* Role display — smooth fade swap, no typewriter */}
+                <div className="text-xl sm:text-2xl text-content-secondary font-medium mb-5 min-h-[36px] flex items-center justify-center md:justify-start">
+                  <RoleCycler roles={roles} />
+                </div>
+
+                {/* Tagline */}
+                <p className="text-base sm:text-lg text-content-secondary leading-relaxed max-w-2xl mb-8">
+                  {profile.tagline}
+                </p>
+
+                {/* Social pills */}
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+                  {profile.github && (
+                    <a
+                      href={profile.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-brand-primary text-content-secondary hover:text-content-primary transition-all duration-200"
+                    >
+                      <GithubIcon className="w-3.5 h-3.5 text-content-primary" />
+                      <span>GitHub</span>
+                    </a>
+                  )}
+
+                  {profile.linkedin && (
+                    <a
+                      href={profile.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-blue-400 text-content-secondary hover:text-content-primary transition-all duration-200"
+                    >
+                      <LinkedinIcon className="w-3.5 h-3.5 text-blue-400" />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
+
+                  {profile.telegram && (
+                    <a
+                      href={profile.telegram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-cyan-400 text-content-secondary hover:text-content-primary transition-all duration-200"
+                    >
+                      <TelegramIcon className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Telegram</span>
+                    </a>
+                  )}
+
+                  {profile.email && (
+                    <a
+                      href={`mailto:${profile.email}`}
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-emerald-400 text-content-secondary hover:text-content-primary transition-all duration-200"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{profile.email}</span>
+                    </a>
+                  )}
+                </div>
               </div>
+            </SectionReveal>
 
-              {/* Tagline / Bio */}
-              <p className="text-base sm:text-lg text-content-secondary leading-relaxed max-w-2xl mb-8">
-                {profile.tagline}
-              </p>
-
-              {/* Devpost-style Quick Social & Connection Pills */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-                {profile.github && (
-                  <a
-                    href={profile.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-brand-primary text-content-secondary hover:text-content-primary transition-all duration-200"
-                  >
-                    <GithubIcon className="w-3.5 h-3.5 text-content-primary" />
-                    <span>GitHub</span>
-                  </a>
-                )}
-
-                {profile.linkedin && (
-                  <a
-                    href={profile.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-blue-400 text-content-secondary hover:text-content-primary transition-all duration-200"
-                  >
-                    <LinkedinIcon className="w-3.5 h-3.5 text-blue-400" />
-                    <span>LinkedIn</span>
-                  </a>
-                )}
-
-                {profile.telegram && (
-                  <a
-                    href={profile.telegram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-cyan-400 text-content-secondary hover:text-content-primary transition-all duration-200"
-                  >
-                    <TelegramIcon className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Telegram</span>
-                  </a>
-                )}
-
-                {profile.email && (
-                  <a
-                    href={`mailto:${profile.email}`}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium border border-border-subtle bg-surface hover:bg-surface-hover hover:border-emerald-400 text-content-secondary hover:text-content-primary transition-all duration-200"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>{profile.email}</span>
-                  </a>
-                )}
-              </div>
-            </motion.div>
           </div>
         </div>
       </div>

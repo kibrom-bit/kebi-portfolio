@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { experiences } from '../../data/portfolioData';
 import { Briefcase, Users, Code2, CheckCircle } from 'lucide-react';
+import { SectionReveal, CardReveal } from '../ui/SectionReveal';
 
 const categoryConfig: Record<string, { icon: React.FC<{ className?: string }>; color: string; bg: string; border: string }> = {
   engineering: { icon: Code2,   color: 'text-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/30' },
@@ -31,25 +31,21 @@ const ExperienceTimeline: React.FC = () => {
       <div className="grid-overlay opacity-25" />
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
-        >
-          <p className="section-tag">
-            <span className="w-4 h-px bg-brand-primary" />
-            Work & Leadership
-          </p>
-          <h2 className="section-title">
-            Experience{' '}
-            <span className="text-gradient-brand">Timeline</span>
-          </h2>
-          <p className="section-subtitle max-w-xl">
-            Chronological record of engineering projects, student union leadership, and technical initiatives.
-          </p>
-        </motion.div>
+        <SectionReveal variant="rise">
+          <div className="section-header">
+            <p className="section-tag">
+              <span className="w-4 h-px bg-brand-primary" />
+              Work &amp; Leadership
+            </p>
+            <h2 className="section-title">
+              Experience{' '}
+              <span className="text-brand-primary">Timeline</span>
+            </h2>
+            <p className="section-subtitle max-w-xl">
+              Chronological record of engineering projects, student union leadership, and technical initiatives.
+            </p>
+          </div>
+        </SectionReveal>
 
         {/* Timeline */}
         <div className="relative ml-4 md:ml-8">
@@ -61,14 +57,7 @@ const ExperienceTimeline: React.FC = () => {
               const cfg = categoryConfig[exp.category] ?? categoryConfig.engineering;
               const Icon = cfg.icon;
               return (
-                <motion.div
-                  key={exp.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative pl-8 md:pl-12"
-                >
+                <CardReveal key={exp.id} index={idx} className="relative pl-8 md:pl-12">
                   {/* Timeline dot */}
                   <div className={`absolute left-0 top-1 -translate-x-1/2 w-8 h-8 rounded-xl border-2 flex items-center justify-center ${cfg.bg} ${cfg.border}`}>
                     <Icon className={`w-3.5 h-3.5 ${cfg.color}`} />
@@ -125,7 +114,7 @@ const ExperienceTimeline: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </CardReveal>
               );
             })}
           </div>

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { motion, type Variants } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { profile } from '../../data/portfolioData';
 import { SpotlightCard } from '../ui/SpotlightCard';
 import { Layers, Code2, Zap, CheckCircle } from 'lucide-react';
+import { SectionReveal, CardReveal } from '../ui/SectionReveal';
 
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
   Layers,
@@ -16,16 +16,6 @@ const colorMap: Record<string, { text: string; bg: string; border: string; glow:
   blue:    { text: 'text-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/30',   glow: 'rgba(59,130,246,0.12)' },
   violet:  { text: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/30', glow: 'rgba(139,92,246,0.12)' },
   emerald: { text: 'text-emerald-400',bg: 'bg-emerald-500/10',border: 'border-emerald-500/30',glow: 'rgba(16,185,129,0.12)' },
-};
-
-const containerVariants: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const PhilosophySection: React.FC = () => {
@@ -42,38 +32,28 @@ const PhilosophySection: React.FC = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header mx-auto text-center max-w-2xl mb-16"
-        >
-          <p className="section-tag justify-center">
-            <span className="w-4 h-px bg-brand-primary" />
-            About & Philosophy
-            <span className="w-4 h-px bg-brand-primary" />
-          </p>
-          <h2 className="section-title text-center">
-            Engineering{' '}
-            <span className="text-gradient-brand">Philosophy</span>
-          </h2>
-          <p className="section-subtitle text-center">{profile.bio}</p>
-        </motion.div>
+        <SectionReveal variant="rise">
+          <div className="section-header mx-auto text-center max-w-2xl mb-16">
+            <p className="section-tag justify-center">
+              <span className="w-4 h-px bg-brand-primary" />
+              About &amp; Philosophy
+              <span className="w-4 h-px bg-brand-primary" />
+            </p>
+            <h2 className="section-title text-center">
+              Engineering{' '}
+              <span className="text-brand-primary">Philosophy</span>
+            </h2>
+            <p className="section-subtitle text-center">{profile.bio}</p>
+          </div>
+        </SectionReveal>
 
         {/* Principle Cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          className="grid md:grid-cols-3 gap-6"
-        >
-          {profile.philosophyPrinciples.map((principle) => {
+        <div className="grid md:grid-cols-3 gap-6">
+          {profile.philosophyPrinciples.map((principle, idx) => {
             const Icon = iconMap[principle.icon];
             const colors = colorMap[principle.color] ?? colorMap.blue;
             return (
-              <motion.div key={principle.id} variants={cardVariants}>
+              <CardReveal key={principle.id} index={idx}>
                 <SpotlightCard
                   className="h-full p-6 flex flex-col gap-5"
                   spotlightColor={colors.glow}
@@ -103,10 +83,10 @@ const PhilosophySection: React.FC = () => {
                     ))}
                   </ul>
                 </SpotlightCard>
-              </motion.div>
+              </CardReveal>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

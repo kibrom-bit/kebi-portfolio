@@ -19,8 +19,11 @@ export type ThemePreset = 'obsidian' | 'midnight' | 'cyber' | 'cosmic' | 'light'
 
 export interface ThemeConfig {
   preset: ThemePreset;
-  accentColor: string; // e.g. '#3b82f6'
-  accentGlow: string; // e.g. 'rgba(59, 130, 246, 0.15)'
+  accentColor: string; // e.g. '#3b82f6' — drives UI text/borders only
+  accentGlow: string; // e.g. 'rgba(59, 130, 246, 0.15)' — drives UI glow/spotlight
+  bgGlowColor: string; // e.g. 'rgba(59, 130, 246, 0.12)' — drives background orbs, never changed by swatch picker
+  bgImage: string; // URL or base64 data URI for background image
+  bgImageOpacity: number; // 0–1 opacity for the bg image overlay
   bgApp: string;
   bgSurface: string;
   bgSurfaceHover: string;
@@ -49,10 +52,11 @@ export interface ProfileData {
   stats: { value: string; label: string }[];
 }
 
-export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bgPattern' | 'glowIntensity'>> = {
+export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bgPattern' | 'glowIntensity' | 'bgImage' | 'bgImageOpacity'>> = {
   obsidian: {
     accentColor: '#3b82f6',
     accentGlow: 'rgba(59, 130, 246, 0.15)',
+    bgGlowColor: 'rgba(59, 130, 246, 0.12)',
     bgApp: '#08090a',
     bgSurface: '#111316',
     bgSurfaceHover: '#181b20',
@@ -63,6 +67,7 @@ export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bg
   midnight: {
     accentColor: '#38bdf8',
     accentGlow: 'rgba(56, 189, 248, 0.15)',
+    bgGlowColor: 'rgba(56, 189, 248, 0.10)',
     bgApp: '#060d1a',
     bgSurface: '#0b162c',
     bgSurfaceHover: '#112244',
@@ -73,6 +78,7 @@ export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bg
   cyber: {
     accentColor: '#10b981',
     accentGlow: 'rgba(16, 185, 129, 0.15)',
+    bgGlowColor: 'rgba(16, 185, 129, 0.10)',
     bgApp: '#0a0e14',
     bgSurface: '#111822',
     bgSurfaceHover: '#182230',
@@ -83,6 +89,7 @@ export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bg
   cosmic: {
     accentColor: '#a855f7',
     accentGlow: 'rgba(168, 85, 247, 0.18)',
+    bgGlowColor: 'rgba(168, 85, 247, 0.13)',
     bgApp: '#0d0915',
     bgSurface: '#181026',
     bgSurfaceHover: '#231838',
@@ -93,6 +100,7 @@ export const PRESET_THEMES: Record<ThemePreset, Omit<ThemeConfig, 'preset' | 'bg
   light: {
     accentColor: '#2563eb',
     accentGlow: 'rgba(37, 99, 235, 0.12)',
+    bgGlowColor: 'rgba(37, 99, 235, 0.08)',
     bgApp: '#ffffff',
     bgSurface: '#f8fafc',
     bgSurfaceHover: '#f1f5f9',
@@ -132,6 +140,9 @@ const INITIAL_THEME: ThemeConfig = {
   preset: 'obsidian',
   accentColor: '#3b82f6',
   accentGlow: 'rgba(59, 130, 246, 0.15)',
+  bgGlowColor: 'rgba(59, 130, 246, 0.12)',
+  bgImage: '',
+  bgImageOpacity: 0.15,
   bgApp: '#08090a',
   bgSurface: '#111316',
   bgSurfaceHover: '#181b20',
@@ -372,6 +383,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, []);
 
   const setAccentColor = useCallback(({ hex, glow }: { hex: string; glow?: string }) => {
+    // NOTE: bgGlowColor is intentionally NOT updated here.
+    // The background orbs are locked to the preset's glow color and must
+    // not change when the user picks a UI accent swatch.
     setThemeConfig((prev) => ({
       ...prev,
       accentColor: hex,
