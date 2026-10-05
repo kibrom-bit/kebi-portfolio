@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "publishedAt": "2026-10-05T10:59:40.740Z",
+  "publishedAt": "2026-10-05T12:54:37.385Z",
   "profile": {
     "name": "Kibrom Abebe",
     "handle": "kebi",
@@ -80,22 +80,23 @@
     ]
   },
   "themeConfig": {
-    "preset": "light",
+    "preset": "obsidian",
     "accentColor": "#f59e0b",
     "accentGlow": "rgba(245, 158, 11, 0.16)",
-    "bgApp": "#ffffff",
-    "bgSurface": "#f8fafc",
-    "bgSurfaceHover": "#f1f5f9",
-    "borderSubtle": "#e2e8f0",
-    "textPrimary": "#0f172a",
-    "textSecondary": "#475569",
+    "bgApp": "#08090a",
+    "bgSurface": "#111316",
+    "bgSurfaceHover": "#181b20",
+    "borderSubtle": "#23272f",
+    "textPrimary": "#f3f4f6",
+    "textSecondary": "#9ca3af",
     "bgPattern": "none",
-    "glowIntensity": 1,
+    "glowIntensity": 0,
     "bgImage": "",
     "bgImageOpacity": 0.4,
     "bgImageBlur": 0,
     "bgImageFit": "cover",
-    "bgImageOverlay": "auto"
+    "bgImageOverlay": "auto",
+    "bgGlowColor": "rgba(59, 130, 246, 0.12)"
   },
   "projects": [
     {
