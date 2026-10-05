@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "publishedAt": "2026-09-30T18:23:46.552Z",
+  "publishedAt": "2026-10-05T10:59:40.740Z",
   "profile": {
     "name": "Kibrom Abebe",
     "handle": "kebi",
@@ -89,150 +89,81 @@
     "borderSubtle": "#e2e8f0",
     "textPrimary": "#0f172a",
     "textSecondary": "#475569",
-    "bgPattern": "grid",
-    "glowIntensity": 0.8
+    "bgPattern": "none",
+    "glowIntensity": 1,
+    "bgImage": "",
+    "bgImageOpacity": 0.4,
+    "bgImageBlur": 0,
+    "bgImageFit": "cover",
+    "bgImageOverlay": "auto"
   },
   "projects": [
     {
-      "id": "nexus-api-gateway",
-      "title": "Koinonia – Community & LMS Ecosystem",
-      "tagline": "Full-stack fellowship management and LMS platform featuring multi-tiered RBAC, course progression, member affairs workflow, and digital resource archives.",
-      "category": "backend",
+      "id": "project-1791197886935",
+      "title": "Tigray Resilient Medical Referral System (TRMS)",
+      "tagline": "Enterprise-grade clinical platform managing end-to-end inter-facility medical referrals across distributed healthcare networks in Tigray, with offline-first sync, RBAC, and real-time triage",
+      "category": "fullstack",
       "featured": true,
-      "timeline": "Jan 2025 – Jun 2025",
+      "timeline": "2025",
       "techStack": [
+        "React 19",
+        "TypeScript",
+        "Vite",
+        "TailwindCSS",
         "NestJS",
-        "Node.js",
         "PostgreSQL",
-        "Prisma",
-        "Docker",
-        "Redis",
-        "OpenAPI"
+        "TypeORM",
+        "JWT",
+        "Chart.js"
       ],
       "metrics": [
         {
-          "label": "API Uptime",
-          "value": "99.97%",
-          "description": "Measured over 6-month production window"
-        },
+          "label": "User Roles",
+          "value": "7+",
+          "description": "Domain-level RBAC covering System Admin, Facility Admin, Dept Head, Doctor, Liaison Officer, HEW"
+        }
+      ],
+      "problemStatement": "Fragmented paper-based inter-facility referral processes in Tigray's healthcare system caused delays, data loss, and poor patient outcomes — especially across facilities with intermittent connectivity. The system needed to handle referral routing, triage prioritization, and auditable consent across distributed health centers with zero tolerance for data corruption.",
+      "architectureDescription": "React 19 (Vite) → REST API (NestJS / Clean Architecture) → PostgreSQL (TypeORM + UnitOfWork) + JWT / Passport Auth → Offline-First Sync Engine → Chart.js Analytics",
+      "tradeoffs": [],
+      "role": "Full-Stack Engineer",
+      "liveUrl": "https://trms-frontend-ten.vercel.app/",
+      "githubUrl": "https://github.com/trms-interns/trms-frontend",
+      "accentColor": "blue"
+    },
+    {
+      "id": "project-1790607340319",
+      "title": "Koinonia – Community & LMS Ecosystem",
+      "tagline": "Full-stack fellowship management and LMS platform featuring multi-tiered RBAC, course progression, member affairs workflow, and digital resource archives.",
+      "category": "fullstack",
+      "featured": true,
+      "timeline": "2025",
+      "techStack": [
+        "Next.js 15",
+        "React 19",
+        "TypeScript",
+        "Node.js",
+        "Express",
+        "PostgreSQL",
+        "Prisma ORM",
+        "Tailwind CSS",
+        "TanStack Query",
+        "Zustand"
+      ],
+      "metrics": [
         {
-          "label": "P99 Latency",
-          "value": "<180ms",
-          "description": "Under 1k concurrent sessions"
-        },
-        {
-          "label": "Endpoints",
-          "value": "48+",
-          "description": "Fully documented via OpenAPI 3.1"
+          "label": "Impact",
+          "value": "10x",
+          "description": "Performance improvement"
         }
       ],
       "problemStatement": "Enterprise engineering challenge.",
       "architectureDescription": "Modular Clean Architecture.",
-      "tradeoffs": [
-        {
-          "decision": "Caching Strategy",
-          "chosen": "Redis read-through cache at gateway layer",
-          "rejected": "In-process LRU cache per service instance",
-          "rationale": "Redis provides a shared cache across horizontally scaled gateway replicas, whereas in-process LRU fragments under multi-instance deployments."
-        },
-        {
-          "decision": "ORM Choice",
-          "chosen": "Prisma ORM with type-safe migrations",
-          "rejected": "Raw SQL via pg driver",
-          "rationale": "Prisma migrations are declarative and version-controlled, reducing schema drift risk at the cost of minor query flexibility."
-        }
-      ],
-      "role": "Lead Backend Architect — sole ownership of NestJS gateway, OpenAPI specs, and Docker Compose orchestration.",
-      "githubUrl": "https://github.com/Koinonia-Developers/Koinonia-frontend.git",
+      "tradeoffs": [],
+      "role": "Full-Stack Engineer",
       "liveUrl": "https://koinonia-frontend-seven.vercel.app/",
-      "apiEndpoint": {
-        "method": "GET",
-        "path": "/api/v1/gateway/health",
-        "description": "Cluster telemetry, DB pool status, and p99 latency metrics.",
-        "response": {
-          "status": "healthy",
-          "uptime": "99.97%",
-          "cluster": "prod-eth-01",
-          "activeConnections": 142,
-          "cache": {
-            "provider": "Redis",
-            "hitRate": "87.4%",
-            "avgTtlSec": 300
-          },
-          "database": {
-            "pool": "Prisma/PostgreSQL",
-            "status": "healthy",
-            "pingMs": 3.8
-          },
-          "p99Latency": "178ms"
-        }
-      },
+      "githubUrl": "https://github.com/kibrom-bit/Koinonia-frontend",
       "accentColor": "blue"
-    },
-    {
-      "id": "collab-board",
-      "title": "CollabBoard — Real-Time Task Platform",
-      "tagline": "Full-stack task management SaaS with Socket.io real-time sync, drag-and-drop boards, and team collaboration for 200+ concurrent users.",
-      "category": "fullstack",
-      "featured": true,
-      "timeline": "Aug 2024 – Dec 2024",
-      "techStack": [
-        "Next.js 15",
-        "React",
-        "TypeScript",
-        "Socket.io",
-        "Express",
-        "MongoDB",
-        "Tailwind CSS"
-      ],
-      "metrics": [
-        {
-          "label": "Concurrent Users",
-          "value": "200+",
-          "description": "WebSocket sessions under load test"
-        },
-        {
-          "label": "Event Lag",
-          "value": "<50ms",
-          "description": "Real-time board update broadcast latency"
-        },
-        {
-          "label": "Code Coverage",
-          "value": "84%",
-          "description": "Jest unit + integration test suite"
-        }
-      ],
-      "problemStatement": "Student project teams at Mekelle University struggled to coordinate tasks across WhatsApp and Google Docs — neither of which offered a structured kanban workflow. The requirement was a real-time, multi-board task system with role-based access, file attachment, and mobile-responsive UI.",
-      "architectureDescription": "Next.js (SSR + Client) → Express REST API → MongoDB Atlas | Socket.io Event Bus → Connected Clients",
-      "tradeoffs": [
-        {
-          "decision": "State Sync Model",
-          "chosen": "Server-authoritative Socket.io event broadcasts",
-          "rejected": "Optimistic client-side CRDT updates",
-          "rationale": "Server-authoritative model is simpler to reason about and prevents split-brain scenarios, at the cost of one extra RTT per mutation."
-        }
-      ],
-      "role": "Full-Stack Lead — React component architecture, Express REST layer, Socket.io integration, and MongoDB schema design.",
-      "githubUrl": "https://github.com/kibrom-bit/collab-board",
-      "liveUrl": "https://collab-board.vercel.app",
-      "apiEndpoint": {
-        "method": "POST",
-        "path": "/api/v1/boards/:boardId/tasks",
-        "description": "Creates a new task and broadcasts the event to all board subscribers.",
-        "response": {
-          "id": "tsk_7fa3bc12",
-          "title": "Design API schema for Sprint 4",
-          "status": "todo",
-          "boardId": "brd_99de44",
-          "assignee": {
-            "name": "Kibrom Abebe",
-            "handle": "@kibrom-bit"
-          },
-          "createdAt": "2025-01-15T09:32:00Z",
-          "broadcastedTo": 8
-        }
-      },
-      "accentColor": "violet"
     }
   ]
 }
