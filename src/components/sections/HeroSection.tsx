@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
-import { useIntersectionObserver } from '../../hooks';
 import kebiImg from '../../sections/kebi.png';
 import { MapPin, Mail, CheckCircle2, Terminal } from 'lucide-react';
 import { SectionReveal } from '../ui/SectionReveal';

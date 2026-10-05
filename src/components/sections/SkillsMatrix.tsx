@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useIntersectionObserver } from '../../hooks';
-import { useApp } from '../../contexts/AppContext';
 import { SectionReveal } from '../ui/SectionReveal';
 import { skillCategories } from '../../data/portfolioData';
 import { Monitor, Server, Database, Cpu, GitBranch, Layers } from 'lucide-react';

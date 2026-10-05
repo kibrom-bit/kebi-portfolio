@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { useIntersectionObserver } from '../../hooks';
-import { useApp } from '../../contexts/AppContext';
+import React from 'react';
 import { experiences } from '../../data/portfolioData';
 import { Briefcase, Users, Code2, CheckCircle } from 'lucide-react';
 import { SectionReveal, CardReveal } from '../ui/SectionReveal';

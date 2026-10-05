@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useIntersectionObserver } from '../../hooks';
-import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
 import { SpotlightCard } from '../ui/SpotlightCard';
 import { SectionReveal } from '../ui/SectionReveal';
