@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { useIntersectionObserver } from '../../hooks';
-import { useApp } from '../../contexts/AppContext';
+import React from 'react';
 import { profile } from '../../data/portfolioData';
 import { SpotlightCard } from '../ui/SpotlightCard';
 import { Layers, Code2, Zap, CheckCircle } from 'lucide-react';
@@ -19,15 +17,8 @@ const colorMap: Record<string, { text: string; bg: string; border: string; glow:
 };
 
 const PhilosophySection: React.FC = () => {
-  const { setActiveSection } = useApp();
-  const { ref, isIntersecting } = useIntersectionObserver();
-
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('philosophy');
-  }, [isIntersecting, setActiveSection]);
-
   return (
-    <section id="philosophy" ref={ref} className="section-wrapper bg-app">
+    <section id="philosophy" className="section-wrapper bg-app">
       <div className="grid-overlay opacity-40" />
 
       <div className="container mx-auto px-6 relative z-10">

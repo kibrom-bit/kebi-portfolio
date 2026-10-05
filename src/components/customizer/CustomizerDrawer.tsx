@@ -32,6 +32,7 @@ import {
   RefreshCw,
   Shield,
   Key,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 type Tab = 'theme' | 'profile' | 'projects' | 'contact' | 'publish';
@@ -602,6 +603,118 @@ export const CustomizerDrawer: React.FC = () => {
                         onChange={(e) => updateThemeConfig({ glowIntensity: parseFloat(e.target.value) })}
                         className="w-full accent-brand-primary cursor-pointer"
                       />
+                    </div>
+
+                    {/* Custom Background Image */}
+                    <div className="pt-2 border-t border-border-subtle">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="text-xs font-mono font-bold uppercase tracking-wider text-content-secondary flex items-center gap-2">
+                          <ImageIcon className="w-3.5 h-3.5 text-brand-primary" />
+                          Background Image Overlay
+                        </label>
+                        {themeConfig.bgImage && (
+                          <button
+                            onClick={() => {
+                              updateThemeConfig({ bgImage: '' });
+                              showToast('Background image removed');
+                            }}
+                            className="text-[11px] font-mono text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Remove
+                          </button>
+                        )}
+                      </div>
+
+                      {/* File Upload & URL Input */}
+                      <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-border-subtle hover:border-brand-primary bg-surface-subtle hover:bg-surface-hover cursor-pointer transition-all text-xs font-medium text-content-secondary hover:text-content-primary">
+                            <Upload className="w-4 h-4 text-brand-primary" />
+                            <span>Upload Local Image</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                if (file.size > 5 * 1024 * 1024) {
+                                  showToast('Please select an image smaller than 5MB');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  if (typeof reader.result === 'string') {
+                                    updateThemeConfig({ bgImage: reader.result });
+                                    showToast('Background image uploaded');
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-mono text-content-muted mb-1 block">
+                            Or paste external Image URL
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="url"
+                              placeholder="https://images.unsplash.com/..."
+                              value={themeConfig.bgImage?.startsWith('data:') ? '' : (themeConfig.bgImage || '')}
+                              onChange={(e) => updateThemeConfig({ bgImage: e.target.value })}
+                              className="flex-1 px-3 py-2 text-xs rounded-xl border border-border-subtle bg-surface-subtle font-mono focus:border-brand-primary focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Image Preview & Opacity Slider */}
+                        {themeConfig.bgImage && (
+                          <div className="p-3 rounded-xl border border-border-subtle bg-surface-subtle space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-16 h-12 rounded-lg bg-cover bg-center border border-border-subtle shrink-0"
+                                style={{ backgroundImage: `url(${themeConfig.bgImage})` }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-semibold truncate text-content-primary">
+                                  {themeConfig.bgImage.startsWith('data:')
+                                    ? 'Custom Uploaded Image'
+                                    : themeConfig.bgImage}
+                                </div>
+                                <div className="text-[10px] text-content-muted mt-0.5">
+                                  Background active
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="flex justify-between items-center mb-1.5">
+                                <label className="text-[11px] font-mono text-content-secondary">
+                                  Overlay Opacity
+                                </label>
+                                <span className="text-[11px] font-mono text-brand-primary">
+                                  {Math.round((themeConfig.bgImageOpacity ?? 0.15) * 100)}%
+                                </span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0.05"
+                                max="1"
+                                step="0.05"
+                                value={themeConfig.bgImageOpacity ?? 0.15}
+                                onChange={(e) =>
+                                  updateThemeConfig({ bgImageOpacity: parseFloat(e.target.value) })
+                                }
+                                className="w-full accent-brand-primary cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

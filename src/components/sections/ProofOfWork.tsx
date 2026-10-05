@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useIntersectionObserver } from '../../hooks';
-import { useApp } from '../../contexts/AppContext';
 import { mockEndpoints } from '../../data/portfolioData';
 import { SpotlightCard } from '../ui/SpotlightCard';
+import { SectionReveal } from '../ui/SectionReveal';
 import { Play, CheckCircle2, Clock, AlertCircle, Zap } from 'lucide-react';
 
 type EndpointStatus = 'idle' | 'loading' | 'done';
@@ -29,15 +28,9 @@ const ArchDiagramNode: React.FC<{ label: string; color: string; delay?: number }
 
 
 const ProofOfWork: React.FC = () => {
-  const { setActiveSection } = useApp();
-  const { ref, isIntersecting } = useIntersectionObserver();
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [status, setStatus] = useState<EndpointStatus>('idle');
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('proof-of-work');
-  }, [isIntersecting, setActiveSection]);
 
   const active = mockEndpoints[selectedIdx];
 
@@ -52,28 +45,23 @@ const ProofOfWork: React.FC = () => {
   };
 
   return (
-    <section id="proof-of-work" ref={ref} className="section-wrapper dark:bg-surface/20 bg-gray-50/60">
+    <section id="proof-of-work" className="section-wrapper dark:bg-surface/20 bg-gray-50/60">
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
-        >
-          <p className="section-tag">
-            <span className="w-4 h-px bg-brand-primary" />
-            Proof of Work
-          </p>
-          <h2 className="section-title">
-            Live API &{' '}
-            <span className="text-gradient-brand">Architecture</span> Explorer
-          </h2>
-          <p className="section-subtitle max-w-xl">
-            Test real mock endpoints from my backend projects and visualize the system topology pipeline.
-          </p>
-        </motion.div>
+        <SectionReveal variant="rise">
+          <div className="section-header">
+            <p className="section-tag">
+              <span className="w-4 h-px bg-brand-primary" />
+              Proof of Work
+            </p>
+            <h2 className="section-title text-content-primary">
+              Live API & Architecture Explorer
+            </h2>
+            <p className="section-subtitle max-w-xl">
+              Test real mock endpoints from my backend projects and visualize the system topology pipeline.
+            </p>
+          </div>
+        </SectionReveal>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* ── API Playground ── */}

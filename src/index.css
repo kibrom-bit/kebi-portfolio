@@ -193,10 +193,7 @@
   }
 
   .text-gradient-brand {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent-violet));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-primary);
   }
 
   .animate-gradient-text {
@@ -226,6 +223,20 @@
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-18px); }
+}
+
+/* ── Autofill Dark Override ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #121316 inset !important;
+  box-shadow: 0 0 0px 1000px #121316 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── Command Palette (cmdk) overrides ── */

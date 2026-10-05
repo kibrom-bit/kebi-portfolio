@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
+import { SectionReveal } from '../ui/SectionReveal';
 import { skillCategories } from '../../data/portfolioData';
 import { Monitor, Server, Database, Cpu, GitBranch, Layers } from 'lucide-react';
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
@@ -18,13 +19,7 @@ const themeStyles: Record<string, { border: string; bg: string; text: string; do
 };
 
 const SkillsMatrix: React.FC = () => {
-  const { setActiveSection } = useApp();
-  const { ref, isIntersecting } = useIntersectionObserver();
   const [activeCategory, setActiveCategory] = useState<string>('all');
-
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('skills');
-  }, [isIntersecting, setActiveSection]);
 
   // Filter categories based on selection
   const displayedCategories = activeCategory === 'all'
@@ -32,64 +27,56 @@ const SkillsMatrix: React.FC = () => {
     : skillCategories.filter(cat => cat.id === activeCategory);
 
   return (
-    <section id="skills" ref={ref} className="section-wrapper bg-transparent py-20 relative overflow-hidden">
-
-      {/* Subtle Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none" />
-
+    <section id="skills" className="section-wrapper bg-transparent py-20 relative overflow-hidden">
       <div className="container mx-auto px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
-        >
-          <div className="max-w-2xl">
-            <p className="flex items-center gap-2 text-sm font-mono text-brand-primary mb-3">
-              <span className="w-6 h-px bg-brand-primary/50" />
-              System Architecture & Stack
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-content-primary mb-4">
-              Skills & <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-violet-500">Technologies</span>
-            </h2>
-            <p className="text-content-secondary text-base leading-relaxed">
-              Tools and technologies I use to build scalable, high-performance applications from 0 to 1.
-            </p>
-          </div>
+        <SectionReveal variant="rise">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="max-w-2xl">
+              <p className="flex items-center gap-2 text-sm font-mono text-brand-primary mb-3">
+                <span className="w-6 h-px bg-brand-primary/50" />
+                System Architecture & Stack
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-content-primary mb-4">
+                Skills & Technologies
+              </h2>
+              <p className="text-content-secondary text-base leading-relaxed">
+                Tools and technologies I use to build scalable, high-performance applications from 0 to 1.
+              </p>
+            </div>
 
-          {/* Horizontally scrollable tabs for mobile optimization */}
-          <div className="flex overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:pb-0 hide-scrollbar gap-2 w-full md:w-auto snap-x">
-            <button
-              onClick={() => setActiveCategory('all')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${activeCategory === 'all'
-                ? 'bg-content-primary text-surface shadow-md'
-                : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-                }`}
-            >
-              <Layers className="w-4 h-4" />
-              <span>Overview</span>
-            </button>
+            {/* Horizontally scrollable tabs for mobile optimization */}
+            <div className="flex overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:pb-0 hide-scrollbar gap-2 w-full md:w-auto snap-x">
+              <button
+                onClick={() => setActiveCategory('all')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${activeCategory === 'all'
+                  ? 'bg-content-primary text-surface shadow-md'
+                  : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+                  }`}
+              >
+                <Layers className="w-4 h-4" />
+                <span>Overview</span>
+              </button>
 
-            {skillCategories.map((cat) => {
-              const CatIcon = iconMap[cat.icon];
-              const isActive = cat.id === activeCategory;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${isActive
-                    ? 'bg-content-primary text-surface shadow-md'
-                    : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
-                    }`}
-                >
-                  {CatIcon && <CatIcon className="w-4 h-4 shrink-0" />}
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
+              {skillCategories.map((cat) => {
+                const CatIcon = iconMap[cat.icon];
+                const isActive = cat.id === activeCategory;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all snap-start whitespace-nowrap ${isActive
+                      ? 'bg-content-primary text-surface shadow-md'
+                      : 'bg-surface border border-border-subtle text-content-secondary hover:text-content-primary hover:bg-surface-hover'
+                      }`}
+                  >
+                    {CatIcon && <CatIcon className="w-4 h-4 shrink-0" />}
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </motion.div>
+        </SectionReveal>
 
         {/* Bento Grid Layout */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -53,23 +53,16 @@ const RoleCycler: React.FC<{ roles: string[] }> = ({ roles }) => {
 };
 
 const HeroSection: React.FC = () => {
-  const { setActiveSection } = useApp();
   const { profile } = usePortfolio();
-  const { ref, isIntersecting } = useIntersectionObserver();
 
   const roles =
     profile.roles && profile.roles.length > 0
       ? profile.roles
       : ['Full-Stack Software Engineer'];
 
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('hero');
-  }, [isIntersecting, setActiveSection]);
-
   return (
     <section
       id="hero"
-      ref={ref}
       className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-transparent pt-28 pb-16"
     >
       <div className="container mx-auto px-6 relative z-10">

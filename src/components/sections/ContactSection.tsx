@@ -4,20 +4,15 @@ import { useIntersectionObserver } from '../../hooks';
 import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
 import { SpotlightCard } from '../ui/SpotlightCard';
+import { SectionReveal } from '../ui/SectionReveal';
 import { Mail, FolderGit2, Link2, Send, Check, MapPin, Clock, MessageSquare } from 'lucide-react';
 
 const ContactSection: React.FC = () => {
-  const { setActiveSection } = useApp();
   const { profile } = usePortfolio();
-  const { ref, isIntersecting } = useIntersectionObserver();
   const [formData, setFormData] = useState({ name: '', email: '', type: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [time, setTime] = useState('');
-
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('contact');
-  }, [isIntersecting, setActiveSection]);
 
   // Live clock (EAT = UTC+3)
   useEffect(() => {
@@ -49,29 +44,24 @@ const ContactSection: React.FC = () => {
   ];
 
   return (
-    <section id="contact" ref={ref} className="section-wrapper bg-transparent">
+    <section id="contact" className="section-wrapper bg-transparent">
       <div className="grid-overlay opacity-30" />
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
-        >
-          <p className="section-tag">
-            <span className="w-4 h-px bg-brand-primary" />
-            Get In Touch
-          </p>
-          <h2 className="section-title">
-            Let's{' '}
-            <span className="text-gradient-brand">Build Together</span>
-          </h2>
-          <p className="section-subtitle max-w-xl">
-            Open to full-stack engineering roles, collaborative projects, and freelance opportunities. I respond within 24 hours.
-          </p>
-        </motion.div>
+        <SectionReveal variant="rise">
+          <div className="section-header">
+            <p className="section-tag">
+              <span className="w-4 h-px bg-brand-primary" />
+              Get In Touch
+            </p>
+            <h2 className="section-title text-content-primary">
+              Let's Build Together
+            </h2>
+            <p className="section-subtitle max-w-xl">
+              Open to full-stack engineering roles, collaborative projects, and freelance opportunities. I respond within 24 hours.
+            </p>
+          </div>
+        </SectionReveal>
 
         <div className="grid lg:grid-cols-[1fr_380px] gap-8">
           {/* ── Contact Form ── */}
@@ -81,19 +71,19 @@ const ContactSection: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <SpotlightCard className="p-6 md:p-8">
+            <SpotlightCard className="p-6 md:p-8 bg-[#090a0b] border border-zinc-800/90 shadow-2xl">
               {submitted ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-brand-emerald/10 border border-brand-emerald/30 flex items-center justify-center">
                     <Check className="w-8 h-8 text-brand-emerald" />
                   </div>
-                  <h3 className="font-display font-semibold text-xl text-content-primary">Message Sent!</h3>
-                  <p className="text-content-secondary max-w-xs">
-                    Thanks for reaching out. I'll get back to you at <strong>{formData.email}</strong> within 24 hours.
+                  <h3 className="font-display font-semibold text-xl text-white">Message Sent!</h3>
+                  <p className="text-zinc-300 max-w-xs">
+                    Thanks for reaching out. I'll get back to you at <strong className="text-white">{formData.email}</strong> within 24 hours.
                   </p>
                   <button
                     onClick={() => { setSubmitted(false); setFormData({ name: '', email: '', type: '', message: '' }); }}
-                    className="btn-ghost text-sm mt-2"
+                    className="btn-ghost text-sm mt-2 text-zinc-300 hover:text-white"
                   >
                     Send another message
                   </button>
@@ -102,65 +92,65 @@ const ContactSection: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-medium text-content-secondary mb-1.5">Full Name</label>
+                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">Full Name</label>
                       <input
                         type="text"
                         required
                         placeholder="Kibrom Abebe"
                         value={formData.name}
                         onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-                        className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm
-                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121316] border border-zinc-700/80 text-white placeholder:text-zinc-500 text-sm
+                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/40 focus:bg-[#0c0d10] transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-content-secondary mb-1.5">Email Address</label>
+                      <label className="block text-xs font-medium text-zinc-300 mb-1.5">Email Address</label>
                       <input
                         type="email"
                         required
                         placeholder="you@company.com"
                         value={formData.email}
                         onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
-                        className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm
-                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                        className="w-full px-4 py-3 rounded-xl bg-[#121316] border border-zinc-700/80 text-white placeholder:text-zinc-500 text-sm
+                                   focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/40 focus:bg-[#0c0d10] transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-content-secondary mb-1.5">Opportunity Type</label>
+                    <label className="block text-xs font-medium text-zinc-300 mb-1.5">Opportunity Type</label>
                     <select
                       required
                       value={formData.type}
                       onChange={(e) => setFormData((f) => ({ ...f, type: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary text-sm
-                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-[#121316] border border-zinc-700/80 text-white text-sm
+                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/40 focus:bg-[#0c0d10] transition-all"
                     >
-                      <option value="">Select a category...</option>
-                      <option value="fulltime">Full-Time Engineering Role</option>
-                      <option value="contract">Contract / Freelance Project</option>
-                      <option value="collab">Open Source Collaboration</option>
-                      <option value="other">General Inquiry</option>
+                      <option value="" className="bg-[#121316] text-zinc-400">Select a category...</option>
+                      <option value="fulltime" className="bg-[#121316] text-white">Full-Time Engineering Role</option>
+                      <option value="contract" className="bg-[#121316] text-white">Contract / Freelance Project</option>
+                      <option value="collab" className="bg-[#121316] text-white">Open Source Collaboration</option>
+                      <option value="other" className="bg-[#121316] text-white">General Inquiry</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-content-secondary mb-1.5">Message</label>
+                    <label className="block text-xs font-medium text-zinc-300 mb-1.5">Message</label>
                     <textarea
                       required
                       rows={5}
                       placeholder="Tell me about the role, project scope, tech stack, and timeline..."
                       value={formData.message}
                       onChange={(e) => setFormData((f) => ({ ...f, message: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-xl bg-surface-subtle border border-border-subtle text-content-primary placeholder:text-content-muted text-sm resize-none
-                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-[#121316] border border-zinc-700/80 text-white placeholder:text-zinc-500 text-sm resize-none
+                                 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/40 focus:bg-[#0c0d10] transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={sending}
-                    className="btn-primary w-full justify-center disabled:opacity-60"
+                    className="btn-primary w-full justify-center disabled:opacity-60 shadow-lg"
                   >
                     {sending ? (
                       <>
@@ -188,13 +178,13 @@ const ContactSection: React.FC = () => {
             className="flex flex-col gap-5"
           >
             {/* Location & time */}
-            <SpotlightCard spotlightColor="rgba(16,185,129,0.08)" className="p-5">
+            <SpotlightCard spotlightColor="rgba(16,185,129,0.08)" className="p-5 bg-[#090a0b] border border-zinc-800/90 shadow-xl">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="w-4 h-4 text-brand-emerald" />
-                <span className="font-medium text-content-primary text-sm">Location & Availability</span>
+                <span className="font-semibold text-white text-sm">Location & Availability</span>
               </div>
-              <p className="text-sm text-content-secondary mb-2">{profile.location}</p>
-              <div className="flex items-center gap-2 text-xs font-mono text-content-muted">
+              <p className="text-sm text-zinc-300 mb-2">{profile.location}</p>
+              <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Local time: </span>
                 <span className="text-brand-emerald font-semibold">{time}</span>
@@ -209,8 +199,8 @@ const ContactSection: React.FC = () => {
             </SpotlightCard>
 
             {/* Direct contacts */}
-            <SpotlightCard spotlightColor="rgba(59,130,246,0.08)" className="p-5">
-              <h4 className="font-medium text-content-primary text-sm mb-4">Direct Connect</h4>
+            <SpotlightCard spotlightColor="rgba(59,130,246,0.08)" className="p-5 bg-[#090a0b] border border-zinc-800/90 shadow-xl">
+              <h4 className="font-semibold text-white text-sm mb-4">Direct Connect</h4>
               <div className="space-y-3">
                 {directContacts.map((c) => (
                   <a
@@ -218,12 +208,12 @@ const ContactSection: React.FC = () => {
                     href={c.href}
                     target={c.label !== 'Email' ? '_blank' : undefined}
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 rounded-xl bg-surface-subtle hover:bg-surface-hover border border-border-subtle hover:border-brand-primary/40 transition-all group"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-[#121316] hover:bg-zinc-800/80 border border-zinc-800 hover:border-brand-primary/40 transition-all group"
                   >
                     <span className={`${c.color}`}>{c.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[11px] text-content-muted font-mono">{c.label}</div>
-                      <div className="text-xs text-content-primary truncate group-hover:text-brand-accent transition-colors">{c.value}</div>
+                      <div className="text-[11px] text-zinc-400 font-mono">{c.label}</div>
+                      <div className="text-xs text-zinc-200 font-medium truncate group-hover:text-white transition-colors">{c.value}</div>
                     </div>
                   </a>
                 ))}
@@ -231,8 +221,8 @@ const ContactSection: React.FC = () => {
             </SpotlightCard>
 
             {/* Response SLA */}
-            <div className="px-5 py-4 rounded-xl border border-border-subtle bg-surface-subtle/50 text-xs text-content-muted font-mono text-center">
-              ⚡ Typical response time: <span className="text-content-primary font-semibold">{'< 24 hours'}</span>
+            <div className="px-5 py-4 rounded-xl border border-zinc-800/80 bg-[#0c0d0f] text-xs text-zinc-400 font-mono text-center">
+              ⚡ Typical response time: <span className="text-white font-semibold">{'< 24 hours'}</span>
             </div>
           </motion.div>
         </div>

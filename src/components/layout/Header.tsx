@@ -23,9 +23,45 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
 
+  // Accurate, centralized scroll spy for header menu indicator
   useEffect(() => {
-    setIsScrolled(scrollPosition > 30);
-  }, [scrollPosition]);
+    const handleScrollSpy = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+
+      // When at top of page -> Home / Hero
+      if (scrollY < 120) {
+        setActiveSection('hero');
+        return;
+      }
+
+      // When near bottom of page -> Contact
+      const winHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (winHeight + scrollY >= docHeight - 100) {
+        setActiveSection('contact');
+        return;
+      }
+
+      // Check sections from bottom to top with header offset
+      const offset = 160;
+      for (let i = navItems.length - 1; i >= 0; i--) {
+        const item = navItems[i];
+        const el = document.getElementById(item.id);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollY + offset >= top) {
+            setActiveSection(item.id);
+            return;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollSpy, { passive: true });
+    handleScrollSpy();
+    return () => window.removeEventListener('scroll', handleScrollSpy);
+  }, [setActiveSection]);
 
   // Cmd+K shortcut
   useEffect(() => {
@@ -51,7 +87,8 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 border-b border-border-subtle/40 backdrop-blur-sm"
+        className="fixed top-0 left-0 right-0 z-50 border-b border-border-subtle shadow-md transition-colors duration-200"
+        style={{ backgroundColor: 'var(--bg-app)' }}
       >
         <nav className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -135,7 +172,7 @@ const Header: React.FC = () => {
 
           {/* Mobile menu */}
           <div className={`md:hidden overflow-hidden transition-all duration-400 ${isMenuOpen ? 'max-h-96 mt-3' : 'max-h-0'}`}>
-            <div className="bg-surface border border-border-subtle rounded-xl p-2 shadow-lg">
+            <div className="border border-border-subtle rounded-xl p-2 shadow-2xl" style={{ backgroundColor: 'var(--bg-app)' }}>
               {navItems.map((item) => (
                 <button
                   key={item.id}

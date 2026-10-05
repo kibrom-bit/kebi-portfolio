@@ -6,6 +6,7 @@ import { useApp } from '../../contexts/AppContext';
 import { usePortfolio } from '../../contexts/PortfolioContext';
 import { useAdmin } from '../../contexts/AdminContext';
 import { SpotlightCard } from '../ui/SpotlightCard';
+import { SectionReveal, CardReveal } from '../ui/SectionReveal';
 import { Project } from '../../data/portfolioData';
 import {
   FolderGit2,
@@ -163,15 +164,9 @@ const ProjectLinkPreview: React.FC<{ project: Project; colors: (typeof accentMap
 };
 
 const FeaturedProjects: React.FC = () => {
-  const { setActiveSection } = useApp();
   const { projects, profile, openCustomizer } = usePortfolio();
   const { isAdmin, isPreviewMode } = useAdmin();
-  const { ref, isIntersecting } = useIntersectionObserver();
   const [selected, setSelected] = useState<Project | null>(null);
-
-  useEffect(() => {
-    if (isIntersecting) setActiveSection('projects');
-  }, [isIntersecting, setActiveSection]);
 
   useEffect(() => {
     document.body.style.overflow = selected ? 'hidden' : '';
@@ -181,62 +176,52 @@ const FeaturedProjects: React.FC = () => {
   }, [selected]);
 
   return (
-    <section id="projects" ref={ref} className="section-wrapper bg-transparent">
+    <section id="projects" className="section-wrapper bg-transparent">
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
-        >
-          <div className="section-header mb-0">
-            <p className="section-tag">
-              <span className="w-4 h-px bg-brand-primary" />
-              Featured Work ({projects.length})
-            </p>
-            <h2 className="section-title">
-              Software <span className="text-gradient-brand">Projects</span>
-            </h2>
-            <p className="section-subtitle max-w-xl">
-              Live web applications, backend services, and systems architecture with live previews and source code.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {isAdmin && !isPreviewMode && (
-              <button
-                onClick={openCustomizer}
-                className="btn-primary text-xs py-2.5 px-4 flex items-center gap-1.5"
+        <SectionReveal variant="rise">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="section-header mb-0">
+              <p className="section-tag">
+                <span className="w-4 h-px bg-brand-primary" />
+                Featured Work ({projects.length})
+              </p>
+              <h2 className="section-title text-content-primary">
+                Software Projects
+              </h2>
+              <p className="section-subtitle max-w-xl">
+                Live web applications, backend services, and systems architecture with live previews and source code.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {isAdmin && !isPreviewMode && (
+                <button
+                  onClick={openCustomizer}
+                  className="btn-primary text-xs py-2.5 px-4 flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add / Manage Projects
+                </button>
+              )}
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost text-sm py-2.5"
               >
-                <Plus className="w-3.5 h-3.5" />
-                Add / Manage Projects
-              </button>
-            )}
-            <a
-              href={profile.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-ghost text-sm py-2.5"
-            >
-              <FolderGit2 className="w-4 h-4" />
-              GitHub
-            </a>
+                <FolderGit2 className="w-4 h-4" />
+                GitHub
+              </a>
+            </div>
           </div>
-        </motion.div>
+        </SectionReveal>
 
         {/* Projects Grid */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects.map((project, idx) => {
             const colors = accentMap[project.accentColor] ?? accentMap.blue;
             return (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              >
+              <CardReveal key={project.id} index={idx}>
                 <SpotlightCard
                   className="h-full flex flex-col p-5 gap-4 cursor-pointer group"
                   spotlightColor={colors.glow}
@@ -308,7 +293,7 @@ const FeaturedProjects: React.FC = () => {
                     </div>
                   </div>
                 </SpotlightCard>
-              </motion.div>
+              </CardReveal>
             );
           })}
         </div>
