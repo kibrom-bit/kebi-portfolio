@@ -446,8 +446,8 @@ export const CustomizerDrawer: React.FC = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as Tab)}
                       className={`flex items-center gap-2 px-3 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-200 ${isActive
-                          ? 'border-brand-primary text-brand-primary'
-                          : 'border-transparent text-content-muted hover:text-content-primary'
+                        ? 'border-brand-primary text-brand-primary'
+                        : 'border-transparent text-content-muted hover:text-content-primary'
                         }`}
                     >
                       <Icon className={`w-4 h-4 ${isPublish && hasUnpublishedChanges ? 'text-amber-400 animate-pulse' : ''}`} />
@@ -487,8 +487,8 @@ export const CustomizerDrawer: React.FC = () => {
                               showToast(`Applied ${preset.name} theme`);
                             }}
                             className={`p-3 text-left rounded-xl border transition-all ${themeConfig.preset === preset.id
-                                ? 'border-brand-primary bg-brand-primary/10 shadow-sm ring-1 ring-brand-primary/50'
-                                : 'border-border-subtle bg-surface-subtle hover:border-content-muted'
+                              ? 'border-brand-primary bg-brand-primary/10 shadow-sm ring-1 ring-brand-primary/50'
+                              : 'border-border-subtle bg-surface-subtle hover:border-content-muted'
                               }`}
                           >
                             <div className="text-xs font-semibold">{preset.name}</div>
@@ -512,8 +512,8 @@ export const CustomizerDrawer: React.FC = () => {
                               showToast(`Accent set to ${swatch.name}`);
                             }}
                             className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${themeConfig.accentColor.toLowerCase() === swatch.hex.toLowerCase()
-                                ? 'border-brand-primary ring-2 ring-brand-primary/40 bg-surface-hover'
-                                : 'border-border-subtle hover:border-content-muted'
+                              ? 'border-brand-primary ring-2 ring-brand-primary/40 bg-surface-hover'
+                              : 'border-border-subtle hover:border-content-muted'
                               }`}
                           >
                             <span
@@ -573,8 +573,8 @@ export const CustomizerDrawer: React.FC = () => {
                               showToast(`Pattern set to ${pat.label}`);
                             }}
                             className={`p-2.5 text-center text-xs font-semibold rounded-xl border transition-all ${themeConfig.bgPattern === pat.id
-                                ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
-                                : 'border-border-subtle text-content-secondary hover:border-content-muted'
+                              ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                              : 'border-border-subtle text-content-secondary hover:border-content-muted'
                               }`}
                           >
                             {pat.label}
@@ -646,8 +646,8 @@ export const CustomizerDrawer: React.FC = () => {
                         <button
                           onClick={() => updateProfile({ statusActive: !profile.statusActive })}
                           className={`px-2.5 py-1 text-xs font-mono rounded-full border transition-colors ${profile.statusActive
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                              : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                            : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
                             }`}
                         >
                           {profile.statusActive ? '● Status Active' : '○ Status Hidden'}
@@ -888,8 +888,8 @@ export const CustomizerDrawer: React.FC = () => {
                   <div className="space-y-5 text-xs">
                     {/* Status Overview Card */}
                     <div className={`p-4 rounded-xl border ${hasUnpublishedChanges
-                        ? 'border-amber-500/30 bg-amber-500/5'
-                        : 'border-emerald-500/30 bg-emerald-500/5'
+                      ? 'border-amber-500/30 bg-amber-500/5'
+                      : 'border-emerald-500/30 bg-emerald-500/5'
                       }`}>
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1062,8 +1062,8 @@ export const CustomizerDrawer: React.FC = () => {
                         {githubSyncResult && (
                           <div
                             className={`p-2.5 rounded-lg text-xs font-mono ${githubSyncResult.success
-                                ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                              ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                              : 'bg-red-500/10 border border-red-500/30 text-red-400'
                               }`}
                           >
                             {githubSyncResult.msg}
@@ -1118,8 +1118,8 @@ export const CustomizerDrawer: React.FC = () => {
 
                         {passkeyChangeMsg && (
                           <div className={`p-2.5 rounded-lg text-xs font-mono ${passkeyChangeMsg.type === 'success'
-                              ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                              : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                            ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                            : 'bg-red-500/10 border border-red-500/30 text-red-400'
                             }`}>
                             {passkeyChangeMsg.text}
                           </div>
